@@ -1,4 +1,4 @@
-# Slovo na slovo
+# Slovo na slovo \ Word Chain Game
 
 [Open the app on GitHub Pages](https://engelhardt-ana.github.io/slovo-na-slovo/)
 
