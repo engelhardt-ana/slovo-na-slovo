@@ -88,10 +88,6 @@
     .modebar{padding:0 12px 8px}
     #modeToggle{border-radius:22px;justify-content:flex-start}
   }
-  @media (min-width:721px){
-    .modebar{transform:translateX(48px)}
-  }
-
   /* ---------- alphabet ---------- */
   .alphabet-toggle{
     display:flex;
@@ -158,13 +154,39 @@
   }
   main.nolist{grid-template-columns:1fr}
   @media (min-width:721px){
+    :root{
+      --learn-shell: min(1320px, calc(100vw - 112px));
+      --learn-sidebar: 280px;
+      --learn-gap: 28px;
+      --learn-content: calc(var(--learn-shell) - var(--learn-sidebar) - var(--learn-gap));
+      --learn-content-left: calc((100vw - var(--learn-shell)) / 2 + var(--learn-sidebar) + var(--learn-gap));
+    }
+    .modebar{
+      width:var(--learn-content);
+      margin-left:var(--learn-content-left);
+      margin-right:auto;
+      padding-left:0;
+      padding-right:0;
+      justify-content:flex-start;
+    }
+    .alphabet-toggle{
+      width:var(--learn-content);
+      margin-left:var(--learn-content-left);
+      margin-right:auto;
+    }
+    .alphabet{
+      width:var(--learn-content);
+      margin-left:var(--learn-content-left);
+      margin-right:auto;
+      justify-content:start;
+    }
     main.learnmode{
-      width:min(1320px,calc(100% - 112px));
+      width:var(--learn-shell);
       margin:0 auto;
       padding-left:0;
       padding-right:0;
-      gap:28px;
-      grid-template-columns:280px minmax(0,1fr);
+      gap:var(--learn-gap);
+      grid-template-columns:var(--learn-sidebar) minmax(0,1fr);
     }
     main.learnmode .stage{
       width:100%;
