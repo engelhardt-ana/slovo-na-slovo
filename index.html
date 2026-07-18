@@ -57,16 +57,6 @@
     color:var(--ink-soft);transition:.15s;white-space:nowrap;
   }
   .toggle button.on{background:var(--card);color:var(--ink);box-shadow:0 2px 0 rgba(38,50,75,.1)}
-  .sound-toggle{
-    display:flex;align-items:center;gap:7px;
-    background:var(--card);color:var(--ink);
-    border-radius:999px;padding:8px 12px;
-    font-weight:900;font-size:14px;
-    box-shadow:var(--shadow);
-    white-space:nowrap;
-  }
-  .sound-toggle.off{background:#f4dfe3;color:#8d2630}
-
   .modebar{padding:4px 16px 10px;display:flex;justify-content:center}
 
   /* ---------- alphabet ---------- */
@@ -230,12 +220,6 @@
 
   .question{font-weight:900;font-size:clamp(18px,4vw,24px);text-align:center}
 
-  .nosound{
-    position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
-    background:var(--ink);color:#fff;font-size:13px;font-weight:700;
-    padding:8px 16px;border-radius:999px;opacity:.92;z-index:50;
-  }
-
   .confetti{position:absolute;top:-20px;font-size:26px;animation:fall 1.6s ease-in forwards;pointer-events:none}
   @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.2}}
 
@@ -249,7 +233,6 @@
 <header>
   <div class="logo"><span class="cube" id="logoCube">С</span><span id="logoText">Слово на слово</span></div>
   <div class="spacer"></div>
-  <button class="sound-toggle off" id="soundToggle" type="button" aria-pressed="false">🔇 Звук</button>
   <div class="toggle" id="scriptToggle">
     <button id="sCyr" class="on">Ћир</button>
     <button id="sLat">Lat</button>
@@ -364,85 +347,9 @@ function answerBox(item, extra){
   div.innerHTML = disp("реч за одрасле") + ": <b>" + dispU(item.w) + "</b>" + syl + (extra ? "<br>" + extra : "");
   return div;
 }
-
-/* ================= speech ================= */
-const SOUND_KEY = "slovo-po-slovo-sound";
-let soundOn = localStorage.getItem(SOUND_KEY) === "on";
-let voice = null, hasVoice = false;
-function pickVoice(){
-  const vs = speechSynthesis.getVoices();
-  voice = vs.find(v => v.lang.toLowerCase().startsWith("sr"))
-       || vs.find(v => /serbian|срп/i.test(v.name))
-       || null;
-  hasVoice = !!voice;
-  syncSoundButton();
-}
-function showNotice(text){
-  const n = $("nosound");
-  if(n) n.remove();
-  const d = document.createElement("div");
-  d.className = "nosound"; d.id = "nosound";
-  d.textContent = text;
-  document.body.appendChild(d);
-  setTimeout(() => d.remove(), 4000);
-}
-if("speechSynthesis" in window){
-  pickVoice();
-  speechSynthesis.onvoiceschanged = pickVoice;
-}
-function syncSoundButton(){
-  const b = $("soundToggle");
-  if(!b) return;
-  b.classList.toggle("off", !soundOn);
-  b.setAttribute("aria-pressed", soundOn ? "true" : "false");
-  b.textContent = (soundOn ? "🔊 " : "🔇 ") + disp(soundOn ? "звук" : "без звука");
-}
-function canSpeak(){
-  if(!soundOn || !("speechSynthesis" in window)) return false;
-  if(!voice) pickVoice();
-  if(!voice){
-    showNotice(disp("српски глас није доступан на овом уређају"));
-    return false;
-  }
-  return true;
-}
-
-function utter(text, rate){
-  const u = new SpeechSynthesisUtterance(text);
-  u.voice = voice;
-  u.lang = voice.lang;
-  u.rate = rate;
-  u.pitch = 1.05;
-  return u;
-}
-function speak(cyrText, slow){
-  if(!canSpeak()) return;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utter(toLat(cyrText), slow ? 0.7 : 0.85));
-}
-/* single letter: capitalized so TTS doesn't prepend "malo" */
-function speakLetter(cyrChar){
-  if(!canSpeak()) return;
-  speechSynthesis.cancel();
-  const l = toLat(cyrChar);
-  speechSynthesis.speak(utter(l.charAt(0).toUpperCase() + l.slice(1), 0.7));
-}
-/* spell out letters one by one with pauses (analysis / blending) */
-function speakSpelled(cyrWord, after){
-  if(!canSpeak()){ if(after) after(); return; }
-  speechSynthesis.cancel();
-  const chars = [...cyrWord];
-  let i = 0;
-  const next = () => {
-    if(i >= chars.length){ if(after) setTimeout(after, 300); return; }
-    const l = toLat(chars[i]);
-    const u = utter(l.charAt(0).toUpperCase() + l.slice(1), 0.65);
-    u.onend = () => setTimeout(next, 350);
-    speechSynthesis.speak(u);
-    i++;
-  };
-  next();
-}
+function spacedLetters(cyrWord){ return [...cyrWord].map(ch => dispLetter(ch)).join(" - "); }
+function firstSound(cyrWord){ return dispLetter([...cyrWord][0]); }
+function lastSound(cyrWord){ const chars = [...cyrWord]; return dispLetter(chars[chars.length - 1]); }
 
 /* ================= render: alphabet ================= */
 function renderAlphabet(){
@@ -459,7 +366,6 @@ function renderAlphabet(){
       selLetter = l;
       selWord = null;
       showSyll = false;
-      speakLetter(l);
       if(mode === "play") startGame();
       renderAll();
     };
@@ -496,7 +402,6 @@ function renderWordlist(){
       showSyll = false;
       if(mode === "learn"){
         done.add(w);
-        speak(w);
       } else {
         startGame(selWord);
       }
@@ -528,7 +433,6 @@ function renderLearn(){
       const b = document.createElement("button");
       b.className = "lbox syll";
       b.textContent = dispU(sy);
-      b.onclick = () => speak(sy, true);
       boxes.appendChild(b);
     });
   } else {
@@ -536,7 +440,6 @@ function renderLearn(){
       const b = document.createElement("button");
       b.className = "lbox";
       b.textContent = dispLetter(ch);
-      b.onclick = () => speakLetter(ch);
       boxes.appendChild(b);
     });
   }
@@ -546,27 +449,14 @@ function renderLearn(){
   const row = document.createElement("div");
   row.className = "btnrow";
 
-  const sp = document.createElement("button");
-  sp.className = "speakbtn";
-  sp.innerHTML = "🔊 " + dispU(w);
-  sp.onclick = () => speak(w);
-  row.appendChild(sp);
-
   const sl = document.createElement("button");
   sl.className = "speakbtn purp";
   sl.innerHTML = showSyll ? "🔤 " + disp("слова") : "👏 " + disp("слогови");
   sl.onclick = () => {
     showSyll = !showSyll;
-    if(showSyll) speak(syl.split("-").join(", "), true);
     renderAll();
   };
   row.appendChild(sl);
-
-  const an = document.createElement("button");
-  an.className = "speakbtn alt";
-  an.innerHTML = "🐌 " + disp("глас по глас");
-  an.onclick = () => speakSpelled(w);
-  row.appendChild(an);
 
   s.appendChild(row);
 
@@ -576,9 +466,9 @@ function renderLearn(){
     "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
     (showSyll
       ? disp("пљескајте рукама за сваки слог: ") + "<b>" + dispU(syl.split("-").join(" · ")) + "</b>. " +
-        disp("питај: „колико слогова има реч? који је први слог?“")
-      : disp("питај: „која слова видиш у речи") + " <b>" + dispU(w) + "</b>“? " +
-        disp("додирните свако слово и прочитајте га. затим питај: „који глас чујеш први? а последњи?“"));
+        disp("кажи реч природно, па полако по слоговима; дете нека понови без журбе.")
+      : disp("покажи прстом слева надесно: ") + "<b>" + spacedLetters(w) + "</b>. " +
+        disp("прво кажи целу реч, затим кратко сваки глас — без додавања „ə“ после сугласника."));
   s.appendChild(tip);
 }
 
@@ -633,12 +523,6 @@ function renderPlay(){
     nx.onclick = () => { startGame(); renderAll(); };
     s.appendChild(nx);
   } else {
-    const sp = document.createElement("button");
-    sp.className = "speakbtn alt";
-    sp.innerHTML = "🔊 " + disp("чуј реч");
-    sp.onclick = () => speak(game.w);
-    s.appendChild(sp);
-
     const tl = document.createElement("div");
     tl.className = "tiles";
     game.tiles.forEach(t => {
@@ -650,11 +534,9 @@ function renderPlay(){
         if(t.c === game.chars[game.pos]){
           t.done = true;
           game.pos++;
-          speakLetter(t.c);
           if(game.pos === game.chars.length){
             game.won = true;
             done.add(game.w);
-            setTimeout(() => speak(game.w), 600);
             confetti();
           }
           renderAll();
@@ -672,7 +554,7 @@ function renderPlay(){
   tip.className = "adult";
   tip.innerHTML =
     "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
-    disp("нека дете прво чује реч, па слаже слова редом. ако греши — изговори реч полако, наглашавајући сваки глас.");
+    disp("родитељ каже реч, дете слаже слова редом. ако запне, развуци само тражени глас и покажи следеће празно поље.");
   s.appendChild(tip);
 }
 
@@ -682,7 +564,6 @@ function startSoundQuiz(){
   const target = soundPos === "first" ? [...item.w][0] : [...item.w][[...item.w].length - 1];
   const others = shuffle(AZBUKA.filter(l => l !== target)).slice(0, 3);
   sq = { ...item, target, options: shuffle([target, ...others]), solved: false };
-  setTimeout(() => speak(item.w), 350);
 }
 
 function renderSound(){
@@ -708,16 +589,10 @@ function renderSound(){
   const q = document.createElement("div");
   q.className = "question";
   q.textContent = soundPos === "first"
-    ? disp("који глас чујеш први?") + " 👂"
-    : disp("који глас чујеш последњи?") + " 👂";
+    ? disp("родитељ каже реч — који глас чујеш први?") + " 👂"
+    : disp("родитељ каже реч — који глас чујеш последњи?") + " 👂";
   s.appendChild(q);
   s.appendChild(answerBox(sq, disp("тачан глас") + ": <b>" + dispLetter(sq.target) + "</b>"));
-
-  const sp = document.createElement("button");
-  sp.className = "speakbtn alt";
-  sp.innerHTML = "🔊 " + disp("чуј реч");
-  sp.onclick = () => speak(sq.w);
-  s.appendChild(sp);
 
   if(sq.solved){
     const pr = document.createElement("div");
@@ -741,12 +616,10 @@ function renderSound(){
         if(l === sq.target){
           sq.solved = true;
           b.classList.add("good");
-          speakLetter(l);
           confetti();
           setTimeout(renderAll, 500);
         } else {
           b.classList.add("wrong");
-          speak(sq.w, true);
           setTimeout(() => b.classList.remove("wrong"), 350);
         }
       };
@@ -759,7 +632,9 @@ function renderSound(){
   tip.className = "adult";
   tip.innerHTML =
     "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
-    disp("ово вежба фонемски слух — темељ читања. изговори реч полако, наглашавајући тражени глас: „ммм-иш“ или „ми-шшш“.");
+    (soundPos === "first"
+      ? disp("кажи реч нормално, па понови са благим истезањем првог гласа: нпр. „сссат“. не додај посебан самогласник после гласа.")
+      : disp("кажи реч нормално, па понови са благим задржавањем последњег гласа: нпр. „но-ссс“ или „ми-шшш“."));
   s.appendChild(tip);
 }
 
@@ -769,7 +644,6 @@ function startBlendQuiz(){
   const item = pick(pool);
   const others = shuffle(pool.filter(x => x.w !== item.w)).slice(0, 2);
   bq = { ...item, options: shuffle([item, ...others]), solved: false };
-  setTimeout(() => speakSpelled(item.w), 400);
 }
 
 function renderBlend(){
@@ -779,7 +653,7 @@ function renderBlend(){
 
   const q = document.createElement("div");
   q.className = "question";
-  q.textContent = "🔮 " + disp("слушај гласове — која је то реч?");
+  q.textContent = "🔮 " + disp("родитељ каже гласове — која је то реч?");
   s.appendChild(q);
 
   const boxes = document.createElement("div");
@@ -789,17 +663,10 @@ function renderBlend(){
     b.className = "lbox " + (bq.solved ? "" : "slot");
     b.textContent = bq.solved ? dispLetter(ch) : "?";
     if(!bq.solved){ b.style.color = "var(--ink-soft)"; }
-    b.onclick = () => { if(bq.solved) speakLetter(ch); };
     boxes.appendChild(b);
   });
   s.appendChild(boxes);
-  s.appendChild(answerBox(bq));
-
-  const sp = document.createElement("button");
-  sp.className = "speakbtn purp";
-  sp.innerHTML = "🐌 " + disp("чуј гласове поново");
-  sp.onclick = () => speakSpelled(bq.w);
-  s.appendChild(sp);
+  s.appendChild(answerBox(bq, disp("кажи одвојено") + ": <b>" + spacedLetters(bq.w) + "</b>"));
 
   if(bq.solved){
     const pr = document.createElement("div");
@@ -824,7 +691,6 @@ function renderBlend(){
         if(o.w === bq.w){
           bq.solved = true;
           done.add(bq.w);
-          speak(bq.w);
           confetti();
           setTimeout(renderAll, 400);
         } else {
@@ -841,7 +707,8 @@ function renderBlend(){
   tip.className = "adult";
   tip.innerHTML =
     "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
-    disp("ово је синтеза гласова: дете чује гласове одвојено и спаја их у реч. ако је тешко, изговорите гласове брже и ближе једне другима.");
+    disp("кажи гласове одвојено, па сваки следећи пут мало ближе: ") + "<b>" + spacedLetters(bq.w) + "</b>. " +
+    disp("на крају изговори целу реч природно и нека дете покаже слику.");
   s.appendChild(tip);
 }
 
@@ -863,13 +730,6 @@ function confetti(){
 /* ================= toggles ================= */
 $("sCyr").onclick = () => { script = "cyr"; syncToggles(); renderAll(); };
 $("sLat").onclick = () => { script = "lat"; syncToggles(); renderAll(); };
-$("soundToggle").onclick = () => {
-  soundOn = !soundOn;
-  localStorage.setItem(SOUND_KEY, soundOn ? "on" : "off");
-  if(!soundOn && "speechSynthesis" in window) speechSynthesis.cancel();
-  if(soundOn) speak(selWord?.w || game?.w || sq?.w || bq?.w || "слово");
-  syncSoundButton();
-};
 $("mLearn").onclick = () => setMode("learn");
 $("mPlay").onclick = () => setMode("play");
 $("mSound").onclick = () => setMode("sound");
@@ -905,7 +765,6 @@ function syncToggles(){
   $("logoCube").textContent = script === "cyr" ? "С" : "S";
   $("main").classList.toggle("nolist", mode === "sound" || mode === "blend");
   $("wordlist").style.display = (mode === "sound" || mode === "blend") ? "none" : "";
-  syncSoundButton();
 }
 
 /* ================= boot ================= */
