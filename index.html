@@ -345,6 +345,35 @@
   .subtoggle button.on{background:var(--purple);color:#fff}
 
   .question{font-weight:900;font-size:clamp(18px,4vw,24px);text-align:center}
+  .letter-grid{
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(64px,1fr));
+    gap:10px;
+  }
+  .letter-card{
+    aspect-ratio:1;
+    border-radius:16px;
+    background:#f2f6fc;
+    color:var(--ink);
+    display:grid;
+    place-items:center;
+    font-weight:900;
+    font-size:clamp(28px,8vw,48px);
+    box-shadow:var(--shadow);
+  }
+  .letter-card.sel{background:var(--yellow);transform:rotate(-3deg)}
+  .solo-letter{
+    width:min(190px,52vw);
+    aspect-ratio:1;
+    border-radius:24px;
+    background:var(--yellow);
+    display:grid;
+    place-items:center;
+    font-weight:900;
+    font-size:clamp(76px,28vw,130px);
+    box-shadow:0 7px 0 rgba(38,50,75,.18);
+  }
   .clue{
     width:min(520px,100%);
     background:#fff8e8;
@@ -380,6 +409,8 @@
 <div class="modebar">
   <div class="toggle" id="modeToggle">
     <button id="mLearn" class="on">📖 <span>Учимо</span></button>
+    <button id="mLetters">🔠 <span>Азбука</span></button>
+    <button id="mLetterQuiz">🎯 <span>Квиз буква</span></button>
     <button id="mPlay">🧩 <span>Сложи реч</span></button>
     <button id="mSound">👂 <span>Погоди глас</span></button>
     <button id="mBlend">🔮 <span>Погоди реч</span></button>
@@ -500,7 +531,7 @@ function gameItemsForLetter(letter){
 
 /* ================= state ================= */
 let script = "cyr";          // "cyr" | "lat"
-let mode = "learn";          // "learn" | "play" | "sound" | "blend" | "exercises"
+let mode = "learn";          // "learn" | "letters" | "letterquiz" | "play" | "sound" | "blend" | "exercises"
 let selLetter = null;
 let selWord = null;          // {syl, w, e}
 let showSyll = false;
@@ -510,6 +541,7 @@ let game = null;             // play mode state
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
 let bq = null;               // blend-quiz state
+let letterQuiz = null;
 let celebrationQueue = [];
 const STORAGE = {
   done:"slovoNaSlovo.done",
@@ -632,6 +664,17 @@ function selectWordAt(letter, index){
   showSyll = false;
   markDone(selWord.w, letter, true);
 }
+function selectFirstOpenWord(letter){
+  const entries = DICT[letter] || [];
+  if(!entries.length){
+    selWord = null;
+    return;
+  }
+  const index = entries.findIndex(([syl]) => !done.has(syl.replace(/-/g, "")));
+  const [syl, e] = entries[index >= 0 ? index : 0];
+  selWord = { syl, w: syl.replace(/-/g, ""), e, letter };
+  showSyll = false;
+}
 function currentWordIndex(){
   if(!selLetter || !selWord) return -1;
   return (DICT[selLetter] || []).findIndex(([syl]) => syl.replace(/-/g, "") === selWord.w);
@@ -641,16 +684,17 @@ function currentWordIndex(){
 function renderAlphabet(){
   const wrap = $("alphabet");
   wrap.innerHTML = "";
-  const wordChars = new Set(selWord && (mode === "learn" || mode === "play") ? [...selWord.w] : []);
+  const wordChars = new Set(selWord && mode === "learn" ? [...selWord.w] : []);
   AZBUKA.forEach(l => {
     const b = document.createElement("button");
     b.className = "abc";
-    if(l === selLetter && (mode === "learn" || mode === "play")) b.classList.add("sel");
+    if(l === selLetter && mode === "learn") b.classList.add("sel");
     if(wordChars.has(l)) b.classList.add("inword");
     b.textContent = dispLetter(l);
     b.onclick = () => {
       selLetter = l;
-      selWord = null;
+      if(mode === "learn") selectFirstOpenWord(l);
+      else selWord = null;
       showSyll = false;
       alphabetOpen = false;
       if(mode === "play") startGame();
@@ -780,6 +824,76 @@ function renderLearn(){
         disp("кажи реч природно, па полако по слоговима; дете нека понови без журбе.")
       : disp("покажи прстом слева надесно: ") + "<b>" + spacedLetters(w) + "</b>. " +
         disp("прво кажи целу реч, па нека дете понови слова редом."));
+  s.appendChild(tip);
+}
+
+/* ================= stage: alphabet ================= */
+function renderLetters(){
+  const s = $("stage");
+  s.innerHTML = "";
+
+  const q = document.createElement("div");
+  q.className = "question";
+  q.textContent = "🔠 " + disp("азбука");
+  s.appendChild(q);
+
+  const grid = document.createElement("div");
+  grid.className = "letter-grid";
+  AZBUKA.forEach(l => {
+    const b = document.createElement("button");
+    b.className = "letter-card" + (l === selLetter ? " sel" : "");
+    b.textContent = dispLetter(l);
+    b.onclick = () => {
+      selLetter = l;
+      renderAll();
+    };
+    grid.appendChild(b);
+  });
+  s.appendChild(grid);
+
+  const answer = document.createElement("div");
+  answer.className = "answer";
+  answer.innerHTML = selLetter
+    ? disp("ово је слово") + ": <b>" + dispLetter(selLetter) + "</b>"
+    : disp("изабери једно слово");
+  s.appendChild(answer);
+}
+
+function startLetterQuiz(){
+  letterQuiz = pick(AZBUKA);
+}
+
+function renderLetterQuiz(){
+  const s = $("stage");
+  s.innerHTML = "";
+  if(!letterQuiz) startLetterQuiz();
+
+  const q = document.createElement("div");
+  q.className = "question";
+  q.textContent = "🎯 " + disp("које је ово слово?");
+  s.appendChild(q);
+
+  const card = document.createElement("div");
+  card.className = "solo-letter";
+  card.textContent = dispLetter(letterQuiz);
+  s.appendChild(card);
+
+  const answer = document.createElement("div");
+  answer.className = "answer";
+  answer.innerHTML = disp("слово за одрасле") + ": <b>" + dispLetter(letterQuiz) + "</b>";
+  s.appendChild(answer);
+
+  const nx = document.createElement("button");
+  nx.className = "nextbtn";
+  nx.textContent = disp("следеће слово") + " →";
+  nx.onclick = () => { startLetterQuiz(); renderAll(); };
+  s.appendChild(nx);
+
+  const tip = document.createElement("div");
+  tip.className = "adult";
+  tip.innerHTML =
+    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
+    disp("прво питајте дете да именује слово. затим нека каже реч која почиње тим словом.");
   s.appendChild(tip);
 }
 
@@ -1092,6 +1206,8 @@ function confetti(){
 $("sCyr").onclick = () => { script = "cyr"; syncToggles(); renderAll(); };
 $("sLat").onclick = () => { script = "lat"; syncToggles(); renderAll(); };
 $("mLearn").onclick = () => setMode("learn");
+$("mLetters").onclick = () => setMode("letters");
+$("mLetterQuiz").onclick = () => setMode("letterquiz");
 $("mPlay").onclick = () => setMode("play");
 $("mSound").onclick = () => setMode("sound");
 $("mBlend").onclick = () => setMode("blend");
@@ -1116,6 +1232,7 @@ function setMode(m){
   if(m === "play"){
     startGame();
   }
+  if(m === "letterquiz") startLetterQuiz();
   if(m === "sound") startSoundQuiz();
   if(m === "blend") startBlendQuiz();
   if(m === "exercises"){
@@ -1133,11 +1250,15 @@ function syncToggles(){
   $("sCyr").textContent = script === "cyr" ? "Ћир" : "Cyr";
   $("sLat").textContent = script === "cyr" ? "Лат" : "Lat";
   $("mLearn").classList.toggle("on", mode === "learn");
+  $("mLetters").classList.toggle("on", mode === "letters");
+  $("mLetterQuiz").classList.toggle("on", mode === "letterquiz");
   $("mPlay").classList.toggle("on", mode === "play");
   $("mSound").classList.toggle("on", mode === "sound");
   $("mBlend").classList.toggle("on", mode === "blend");
   $("mExercises").classList.toggle("on", mode === "exercises");
   $("mLearn").querySelector("span").textContent = disp("учимо");
+  $("mLetters").querySelector("span").textContent = disp("азбука");
+  $("mLetterQuiz").querySelector("span").textContent = disp("квиз буква");
   $("mPlay").querySelector("span").textContent = disp("сложи реч");
   $("mSound").querySelector("span").textContent = disp("погоди глас");
   $("mBlend").querySelector("span").textContent = disp("погоди реч");
@@ -1147,16 +1268,16 @@ function syncToggles(){
   $("modeMenuToggle").textContent = (modeMenuOpen ? "▴ " : "▾ ") + disp("режими") + ": " + activeModeName();
   $("modeMenuToggle").style.display = "";
   document.querySelector(".modebar").classList.toggle("collapsed", !modeMenuOpen);
-  $("main").classList.toggle("nolist", mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises");
+  $("main").classList.toggle("nolist", mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises");
   $("main").classList.toggle("learnmode", mode === "learn");
-  $("wordlist").style.display = (mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
-  $("alphabetToggle").style.display = (mode === "play" || mode === "exercises") ? "none" : "";
+  $("wordlist").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "exercises") ? "none" : "";
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
-  $("alphabet").style.display = (mode === "play" || mode === "exercises") ? "none" : "";
+  $("alphabet").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "exercises") ? "none" : "";
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 function activeModeName(){
-  const names = {learn:"учимо", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе"};
+  const names = {learn:"учимо", letters:"азбука", letterquiz:"квиз буква", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе"};
   return disp(names[mode]);
 }
 
@@ -1165,6 +1286,8 @@ function renderAll(){
   renderAlphabet();
   renderWordlist();
   if(mode === "learn") renderLearn();
+  else if(mode === "letters") renderLetters();
+  else if(mode === "letterquiz") renderLetterQuiz();
   else if(mode === "play") renderPlay();
   else if(mode === "sound") renderSound();
   else if(mode === "blend") renderBlend();
