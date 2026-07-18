@@ -72,6 +72,21 @@
   }
   .toggle button.on{background:var(--card);color:var(--ink);box-shadow:0 2px 0 rgba(38,50,75,.1)}
   .modebar{padding:4px 16px 10px;display:flex;justify-content:center}
+  .mobile-toggle{
+    display:none;
+    margin:0 16px 10px;
+    padding:10px 14px;border-radius:14px;
+    background:#eef2fa;color:var(--ink);
+    font-weight:900;box-shadow:var(--shadow);
+    justify-content:center;align-items:center;gap:8px;
+  }
+  @media (max-width:720px){
+    header{padding:8px 12px 4px}
+    .modebar.collapsed{display:none}
+    .mobile-toggle{display:flex}
+    .modebar{padding:0 12px 8px}
+    #modeToggle{border-radius:22px;justify-content:flex-start}
+  }
 
   /* ---------- alphabet ---------- */
   .alphabet-toggle{
@@ -102,7 +117,7 @@
   @media (max-width:720px){
     .alphabet-toggle{display:flex}
     .alphabet.collapsed{display:none}
-    .alphabet{max-height:24vh;overflow:auto;padding-bottom:8px}
+    .alphabet{max-height:18vh;overflow:auto;padding-bottom:8px}
   }
 
   /* ---------- main layout ---------- */
@@ -123,9 +138,11 @@
     max-height:calc(100vh - 190px);overflow:auto;
   }
   @media (max-width:720px){
-    .wordlist{max-height:28vh;padding:10px}
+    .wordlist{max-height:40vh;padding:10px}
     .wordlist h2{position:sticky;top:0;background:var(--card);z-index:1;padding-bottom:4px}
     .chip{padding:9px 10px;font-size:16px;border-radius:11px}
+    .stage{min-height:240px;padding:16px 14px}
+    .placeholder{padding:18px 10px}
   }
   .wordlist h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft)}
   .chip{
@@ -324,6 +341,7 @@
   </div>
 </header>
 
+<button class="mobile-toggle" id="modeMenuToggle" type="button"></button>
 <div class="modebar">
   <div class="toggle" id="modeToggle">
     <button id="mLearn" class="on">📖 <span>Учимо</span></button>
@@ -416,6 +434,7 @@ let selLetter = null;
 let selWord = null;          // {syl, w, e}
 let showSyll = false;
 let alphabetOpen = !window.matchMedia("(max-width:720px)").matches;
+let modeMenuOpen = !window.matchMedia("(max-width:720px)").matches;
 let game = null;             // play mode state
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
@@ -979,6 +998,10 @@ $("mPlay").onclick = () => setMode("play");
 $("mSound").onclick = () => setMode("sound");
 $("mBlend").onclick = () => setMode("blend");
 $("mExercises").onclick = () => setMode("exercises");
+$("modeMenuToggle").onclick = () => {
+  modeMenuOpen = !modeMenuOpen;
+  syncToggles();
+};
 $("alphabetToggle").onclick = () => {
   alphabetOpen = !alphabetOpen;
   syncToggles();
@@ -991,6 +1014,7 @@ $("celebration").onclick = e => {
 
 function setMode(m){
   mode = m;
+  if(isMobile()) modeMenuOpen = false;
   if(m === "play"){
     if(selWord) startGame(selWord);
     else if(selLetter) startGame();
@@ -1024,6 +1048,9 @@ function syncToggles(){
   $("mExercises").querySelector("span").textContent = disp("вежбе");
   $("logoText").textContent = disp("слово на слово").replace(/^./, c => c.toUpperCase());
   $("logoCube").textContent = script === "cyr" ? "С" : "S";
+  $("modeMenuToggle").textContent = (modeMenuOpen ? "▴ " : "▾ ") + disp("режими") + ": " + activeModeName();
+  $("modeMenuToggle").style.display = "";
+  document.querySelector(".modebar").classList.toggle("collapsed", !modeMenuOpen);
   $("main").classList.toggle("nolist", mode === "sound" || mode === "blend" || mode === "exercises");
   $("main").classList.toggle("learnmode", mode === "learn");
   $("wordlist").style.display = (mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
@@ -1031,6 +1058,10 @@ function syncToggles(){
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
   $("alphabet").style.display = mode === "exercises" ? "none" : "";
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
+}
+function activeModeName(){
+  const names = {learn:"учимо", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе"};
+  return disp(names[mode]);
 }
 
 /* ================= boot ================= */
