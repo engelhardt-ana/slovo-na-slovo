@@ -1438,9 +1438,9 @@ function syncToggles(){
     ? "▴ " + disp("сакриј речи")
     : "▾ " + disp("прикажи речи") + ` (${letterDoneCount}/${letterWords.length})`;
   $("wordlist").classList.toggle("collapsed", !wordListOpen);
-  $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
-  $("alphabet").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabet").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 function activeModeName(){
