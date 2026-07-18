@@ -132,11 +132,14 @@
     .alphabet{
       width:100%;
       display:flex;
+      direction:ltr;
       gap:8px;
       overflow-x:auto;
       overflow-y:hidden;
       padding:2px 10px 8px;
       max-height:none;
+      scroll-behavior:smooth;
+      overscroll-behavior-x:contain;
     }
     .alphabet .abc{flex:0 0 54px;height:54px;aspect-ratio:auto}
   }
@@ -644,6 +647,13 @@ function spacedLetters(cyrWord){ return [...cyrWord].map(ch => dispLetter(ch)).j
 function firstSound(cyrWord){ return dispLetter([...cyrWord][0]); }
 function lastSound(cyrWord){ const chars = [...cyrWord]; return dispLetter(chars[chars.length - 1]); }
 function isMobile(){ return window.matchMedia("(max-width:720px)").matches; }
+function resetAlphabetScroll(){
+  if(!isMobile()) return;
+  requestAnimationFrame(() => {
+    $("alphabet").scrollLeft = 0;
+    requestAnimationFrame(() => { $("alphabet").scrollLeft = 0; });
+  });
+}
 function loadSet(key){
   try{ return new Set(JSON.parse(localStorage.getItem(key) || "[]")); }
   catch{ return new Set(); }
@@ -1327,7 +1337,7 @@ $("modeMenuToggle").onclick = () => {
 $("alphabetToggle").onclick = () => {
   alphabetOpen = !alphabetOpen;
   syncToggles();
-  if(alphabetOpen && isMobile()) $("alphabet").scrollLeft = 0;
+  if(alphabetOpen) resetAlphabetScroll();
 };
 $("wordsToggle").onclick = () => {
   wordListOpen = !wordListOpen;
@@ -1415,6 +1425,7 @@ function renderAll(){
   else if(mode === "sound") renderSound();
   else if(mode === "blend") renderBlend();
   else renderExercises();
+  if(mode === "learn" && alphabetOpen) resetAlphabetScroll();
 }
 syncToggles();
 renderAll();
