@@ -1,55 +1,83 @@
-# Slovo na slovo \ Word Chain Game
+# Slovo na slovo
 
 [Open the app on GitHub Pages](https://engelhardt-ana.github.io/slovo-na-slovo/)
 
-Slovo na slovo is a browser-based educational game for children who are preparing to read in Serbian. The app supports Serbian Cyrillic and Latin scripts and helps children connect letters, sounds, syllables, and words through visual and interactive tasks.
+Slovo na slovo is a browser-based educational app for early reading practice in Serbian. It supports Serbian Cyrillic and Latin scripts and helps children connect letters, sounds, syllables, pictures, and whole words.
 
-The app does not use browser-generated speech. A parent, speech therapist, or teacher says the words aloud, while the app provides the visual structure and short tips for how to pronounce, show, and guide each exercise.
+The app does not use browser-generated speech. A parent, speech therapist, or teacher says the words aloud, while the app provides the visual structure, game flow, and short guidance for practice.
 
-## Project Description
+## Project Goal
 
-This project is a small open web app for Serbian early-reading practice. It combines alphabet exploration, word building, sound awareness, and parent-guided speech exercises in one place, so adults can run short, structured activities with a child at home or during speech therapy practice.
+The goal is to support children around ages 5 to 7 as they prepare for reading. The app is especially useful for practicing:
 
-## Goal
-
-The goal of the project is to support early literacy practice for children around ages 5 to 7. It is designed as a helper for speech therapists and parents, especially when practicing Serbian letters, sound awareness, and the idea that a word is built from smaller parts.
-
-The project focuses on:
-
-- recognizing Serbian Cyrillic and Latin letters;
-- connecting a letter with words that begin with that letter;
-- understanding that words are built from letters, sounds, and syllables;
-- practicing first and last sound awareness;
+- Serbian Cyrillic and Latin letters;
+- words that start with a selected letter;
+- the idea that a word is built from letters and syllables;
+- first and last sound awareness;
 - blending separate sounds into a word;
-- supporting adults with simple tips for pronunciation and demonstration.
+- short child-friendly articulation and breathing warm-ups.
 
-## Game Modes
+## Features
 
-- Learn: choose a letter and explore words that start with it. This mode currently includes 551 Serbian words.
-- Alphabet: practice Serbian letters as large standalone cards.
-- Letter quiz: show one random letter at a time, so the child can name it aloud.
-- Build a word: solve a short riddle and arrange the letters in the correct order. This mode uses a curated pool of 30 easy words, shows progress, and avoids repeats until the round is complete.
-- Guess the sound: identify the first or last sound in a word. Sound games use a shorter pool of 160 easier words.
-- Guess the word: listen to sounds spoken by an adult and choose the matching word.
-- Exercises: short parent-guided warm-ups, including articulation exercises and speech-breathing practice.
+- `Learn`: choose a letter and explore words that start with it. Completed words are saved with checkmarks in the browser.
+- `Words`: a random word-flow mode using the full word list, with previous/next navigation and a `word X/551` counter.
+- `Alphabet`: large standalone Serbian letter cards.
+- `Letter quiz`: one random letter at a time for the child to name aloud.
+- `Build a word`: a 30-word riddle game where the child builds the answer letter by letter.
+- `Guess the sound`: practice the first or last sound in a word.
+- `Guess the word`: the adult says sounds separately and the child chooses the matching picture.
+- `Exercises`: short warm-ups for children, including articulation and speech-breathing practice.
+- `Info`: project description, goal, author, and contact link.
 
-## Progress and Reset
+The full word list currently contains **551 Serbian words**. Shorter game pools are used where needed so the tasks stay manageable for young children.
 
-In Learn mode, completed words are marked with checkmarks and saved in the browser. When the child finishes all words for one letter, the app shows a congratulation modal. When all Learn words are completed, the app shows a final congratulation modal.
+## Progress
 
-The app also includes a reset button, so an adult can clear all checkmarks and start again.
+In `Learn`, completed words are stored locally in the browser. The app shows a congratulation modal when all words for a letter are completed, and another one when all Learn words are completed. A reset button clears all saved checkmarks.
 
-## Exercises
+`Build a word` tracks progress through its 30-word round and avoids repeats until the round is complete.
 
-The Exercises tab includes:
+## Screenshots
 
-- articulation warm-up: horse, mushroom, accordion;
-- speech-breathing exercise with a cotton "snowflake";
-- short tips for adults on how to model sounds, syllables, and words clearly.
+### Learn
 
-## About
+![Learn mode](assets/readme/learn.png)
 
-This project was made with AI as part of learning how to use AI tools and Codex for creating, editing, and publishing a small educational web app.
+### Words
+
+![Random word flow](assets/readme/word-flow.png)
+
+### Alphabet
+
+![Alphabet mode](assets/readme/alphabet.png)
+
+### Letter Quiz
+
+![Letter quiz](assets/readme/letter-quiz.png)
+
+### Build A Word
+
+![Build a word](assets/readme/build-word.png)
+
+### Guess The Sound
+
+![Guess the sound](assets/readme/sound-quiz.png)
+
+### Guess The Word
+
+![Guess the word](assets/readme/guess-word.png)
+
+### Exercises
+
+![Exercises](assets/readme/exercises.png)
+
+## Author And AI
+
+Project made by [Anastasija Engeljgardt](https://www.linkedin.com/in/engelhardtana/).
+
+It was created with the help of AI tools as part of learning how to use AI and Codex for building, editing, testing, and publishing a small educational web app.
+
+If you want an improvement, found a mistake, or the project helped you and you want to share a happy story, feel free to contact me.
 
 ----
 
@@ -57,51 +85,79 @@ This project was made with AI as part of learning how to use AI tools and Codex 
 
 [Otvori aplikaciju na GitHub Pages](https://engelhardt-ana.github.io/slovo-na-slovo/)
 
-Slovo na slovo je edukativna igra u browseru za decu koja se pripremaju za citanje na srpskom jeziku. Aplikacija podrzava srpsku cirilicu i latinicu i pomaze deci da povezu slova, glasove, slogove i reci kroz vizuelne i interaktivne zadatke.
+Slovo na slovo je edukativna web aplikacija za ranu pripremu citanja na srpskom jeziku. Podrzava srpsku cirilicu i latinicu i pomaze deci da povezu slova, glasove, slogove, slike i cele reci.
 
-Aplikacija ne koristi automatski glas iz browsera. Rec izgovara roditelj, logoped ili ucitelj, dok aplikacija daje vizuelnu strukturu i kratke savete kako da se rec izgovori, pokaze i uvezba.
+Aplikacija ne koristi automatski glas iz browsera. Rec izgovara roditelj, logoped ili ucitelj, dok aplikacija daje vizuelnu strukturu, tok igre i kratke smernice za vezbu.
 
-## Opis projekta
+## Cilj Projekta
 
-Ovaj projekat je mala otvorena web aplikacija za ranu pripremu za citanje na srpskom jeziku. Spaja ucenje azbuke/abecede, slaganje reci, prepoznavanje glasova i vezbe koje vodi odrasla osoba, kako bi roditelji i logopedi mogli da rade kratke i jasne aktivnosti sa detetom.
+Cilj je podrska deci uzrasta oko 5 do 7 godina u pripremi za citanje. Aplikacija je posebno korisna za vezbanje:
 
-## Cilj
+- srpske cirilice i latinice;
+- reci koje pocinju izabranim slovom;
+- razumevanja da se rec sastoji od slova i slogova;
+- prvog i poslednjeg glasa u reci;
+- spajanja odvojenih glasova u rec;
+- kratkih vezbi artikulacije i govornog disanja.
 
-Cilj projekta je podrska ranoj pripremi za citanje kod dece uzrasta oko 5 do 7 godina. Aplikacija je zamisljena kao pomoc logopedima i roditeljima, posebno za vezbanje srpskih slova, fonemske svesti i razumevanja da se rec sastoji od manjih delova.
+## Funkcionalnosti
 
-Projekat se fokusira na:
+- `Ucimo`: dete bira slovo i istrazuje reci koje pocinju tim slovom. Predjene reci se cuvaju sa kvacicama u browseru.
+- `Reci`: nasumican prolazak kroz celu listu reci, sa prethodnom/sledecom recju i brojacem `rec X/551`.
+- `Abeceda`: velika samostalna slova srpske abecede/azbuke.
+- `Slovo`: nasumicno slovo koje dete treba da imenuje naglas.
+- `Slozi`: igra sa 30 lakih reci u kojoj dete cita zagonetku i slaze odgovor slovo po slovo.
+- `Glas`: vezbanje prvog ili poslednjeg glasa u reci.
+- `Pogodi`: odrasli izgovara glasove odvojeno, a dete bira odgovarajucu sliku.
+- `Vezbe`: kratke vezbe za decu, ukljucujuci artikulaciju i govorno disanje.
+- `Info`: opis projekta, cilj, autor i kontakt.
 
-- prepoznavanje srpske cirilice i latinice;
-- povezivanje slova sa recima koje pocinju tim slovom;
-- razumevanje da se rec sastoji od slova, glasova i slogova;
-- vezbanje prvog i poslednjeg glasa u reci;
-- spajanje odvojenih glasova u rec;
-- podrsku odraslima kroz kratke savete za izgovor i pokazivanje.
+Puna lista trenutno ima **551 srpsku rec**. Za pojedine igre koriste se krace liste kako bi zadaci ostali laki i pregledni za malu decu.
 
-## Rezim igre
+## Napredak
 
-- Ucimo: dete bira slovo i istrazuje reci koje pocinju tim slovom. Ovaj rezim trenutno ima 551 srpsku rec.
-- Abeceda: dete vezba srpska slova kao velike samostalne kartice.
-- Kviz slovo: prikazuje se jedno nasumicno slovo, a dete treba da ga imenuje naglas.
-- Slozi rec: dete resava kratku zagonetku i redja slova pravilnim redosledom. Ovaj rezim koristi poseban skup od 30 lakih reci, prikazuje napredak i ne ponavlja reci dok se krug ne zavrsi.
-- Pogodi glas: dete prepoznaje prvi ili poslednji glas u reci. Igre sa glasovima koriste kraci skup od 160 laksih reci.
-- Pogodi rec: odrasli izgovara glasove, a dete bira odgovarajucu rec.
-- Vezbe: kratke vezbe za roditelje, ukljucujuci artikulacionu gimnastiku i vezbe disanja za govor.
+U rezimu `Ucimo`, predjene reci se cuvaju lokalno u browseru. Aplikacija prikazuje cestitku kada su predjene sve reci za jedno slovo, a zatim i zavrsnu cestitku kada su predjene sve reci u rezimu Ucimo. Dugme za reset brise sve kvacice.
 
-## Napredak i reset
+`Slozi` prati napredak kroz krug od 30 reci i ne ponavlja reci dok se krug ne zavrsi.
 
-U rezimu Ucimo, predjene reci se oznacavaju kvacicama i cuvaju se u browseru. Kada dete predje sve reci za jedno slovo, aplikacija prikazuje modal sa cestitkom. Kada su predjene sve reci u rezimu Ucimo, prikazuje se zavrsna cestitka.
+## Snimci Ekrana
 
-Aplikacija ima i dugme za reset, kako bi odrasla osoba mogla da obrise sve kvacice i pocne ponovo.
+### Ucimo
 
-## Vezbe
+![Ucimo](assets/readme/learn.png)
 
-Kartica Vezbe ukljucuje:
+### Reci
 
-- artikulaciono zagrevanje: konjic, pecurka, harmonika;
-- vezbu disanja sa vatom kao "pahuljicom";
-- kratke savete za odrasle kako jasnije pokazati glasove, slogove i reci.
+![Reci](assets/readme/word-flow.png)
 
-## O projektu
+### Abeceda
 
-Projekat je napravljen uz pomoc AI-ja, u sklopu ucenja AI alata i koriscenja Codex-a za kreiranje, uredjivanje i objavljivanje male edukativne web aplikacije.
+![Abeceda](assets/readme/alphabet.png)
+
+### Slovo
+
+![Slovo](assets/readme/letter-quiz.png)
+
+### Slozi
+
+![Slozi](assets/readme/build-word.png)
+
+### Glas
+
+![Glas](assets/readme/sound-quiz.png)
+
+### Pogodi
+
+![Pogodi](assets/readme/guess-word.png)
+
+### Vezbe
+
+![Vezbe](assets/readme/exercises.png)
+
+## Autor I AI
+
+Projekat je napravila [Anastasija Engeljgardt](https://www.linkedin.com/in/engelhardtana/).
+
+Napravljen je uz pomoc AI alata, u sklopu ucenja vestacke inteligencije i koriscenja Codex-a za razvoj, ispravke, testiranje i objavljivanje male edukativne web aplikacije.
+
+Ako zelite doradu, pronasli ste gresku ili vam je projekat pomogao pa zelite da podelite radost, slobodno mi pisite.
