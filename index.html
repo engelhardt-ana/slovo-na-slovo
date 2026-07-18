@@ -753,6 +753,13 @@ function nextWordFlow(){
   showSyll = false;
   renderAll();
 }
+function prevWordFlow(){
+  if(!wordFlow.queue.length) resetWordFlow();
+  wordFlow.pos = (wordFlow.pos - 1 + wordFlow.queue.length) % wordFlow.queue.length;
+  selWord = wordFlow.queue[wordFlow.pos];
+  showSyll = false;
+  renderAll();
+}
 function makePicture(e){
   const wrap = document.createElement("div");
   wrap.className = "picture";
@@ -1108,6 +1115,13 @@ function renderWordFlow(){
 
   const row = document.createElement("div");
   row.className = "btnrow";
+  const prev = document.createElement("button");
+  prev.className = "speakbtn alt";
+  const prevLabel = disp("претходна реч");
+  prev.textContent = isMobile() ? "←" : "← " + prevLabel;
+  prev.setAttribute("aria-label", prevLabel);
+  prev.onclick = prevWordFlow;
+  row.appendChild(prev);
   row.appendChild(makeSyllableButton());
   const next = document.createElement("button");
   next.className = "speakbtn alt";
