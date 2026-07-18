@@ -170,14 +170,8 @@
       scroll-snap-type:x proximity;
     }
     .wordlist.collapsed{display:none}
-    .wordlist h2{
-      flex:0 0 106px;
-      align-self:center;
-      line-height:1.25;
-      padding-right:10px;
-      border-right:2px solid #eef2fa;
-    }
-    .resetbtn{flex:0 0 auto;align-self:center;padding:8px 11px;font-size:13px}
+    .wordlist h2{display:none}
+    .wordlist .resetbtn{display:none}
     .chip{
       flex:0 0 clamp(132px,42vw,170px);
       min-height:48px;
@@ -1333,6 +1327,7 @@ $("modeMenuToggle").onclick = () => {
 $("alphabetToggle").onclick = () => {
   alphabetOpen = !alphabetOpen;
   syncToggles();
+  if(alphabetOpen && isMobile()) $("alphabet").scrollLeft = 0;
 };
 $("wordsToggle").onclick = () => {
   wordListOpen = !wordListOpen;
