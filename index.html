@@ -35,15 +35,16 @@
     --shadow:0 4px 0 rgba(38,50,75,.12);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{height:100%;min-height:100dvh}
   body{
     font-family:'Nunito',system-ui,sans-serif;
     background:var(--bg);
     color:var(--ink);
     display:flex;flex-direction:column;
     min-height:100vh;
+    min-height:100dvh;
   }
-  button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit}
+  button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit;touch-action:manipulation}
   button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 
   /* ---------- header ---------- */
@@ -86,6 +87,9 @@
     .mobile-toggle{display:flex}
     .modebar{padding:0 12px 8px}
     #modeToggle{border-radius:22px;justify-content:flex-start}
+  }
+  @media (min-width:721px){
+    .modebar{transform:translateX(48px)}
   }
 
   /* ---------- alphabet ---------- */
@@ -224,7 +228,7 @@
       border-radius:11px;
       scroll-snap-align:start;
     }
-    .stage{min-height:220px;padding:14px 12px;gap:12px}
+    .stage{min-height:0;padding:14px 12px calc(14px + env(safe-area-inset-bottom));gap:12px}
     .picture{width:min(170px,50vw);min-height:90px;border-radius:16px}
     .bigemo{font-size:clamp(44px,12vw,66px)}
     .stage .boxes{width:100%;flex-wrap:nowrap;overflow-x:visible;justify-content:center;padding:2px 0 8px;gap:6px}
@@ -232,10 +236,12 @@
     .lbox{min-width:44px;height:52px;padding:0 8px;border-radius:13px;font-size:clamp(22px,7vw,30px)}
     .boxes.compact{gap:5px}
     .boxes.compact .lbox{min-width:38px;height:48px;padding:0 7px;font-size:clamp(20px,6.4vw,27px)}
+    .boxes.verycompact{gap:3px}
+    .boxes.verycompact .lbox{min-width:28px;height:42px;padding:0 4px;border-radius:11px;font-size:clamp(18px,5.4vw,23px)}
     .btnrow{gap:8px}
-    .speakbtn{font-size:14px;padding:9px 12px}
+    .speakbtn{font-size:16px;padding:10px 13px;min-width:48px;min-height:44px;justify-content:center}
     .answer{padding:8px 10px;font-size:14px}
-    .adult{font-size:13.5px;padding:10px 12px}
+    .adult{font-size:13.5px;padding:10px 12px;margin-top:0}
     .placeholder{padding:18px 10px}
   }
   .wordlist h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft)}
@@ -730,7 +736,7 @@ function markDone(word, letter, notify = false){
   const wasNew = !done.has(word);
   done.add(word);
   saveSet(STORAGE.done, done);
-  if(wasNew && notify) checkCelebrations(letter);
+  if(notify) checkCelebrations(wasNew ? letter : null);
 }
 function checkCelebrations(letter){
   if(letter && isLetterDone(letter) && !celebratedLetters.has(letter)){
@@ -903,6 +909,7 @@ function appendWordCard(s, item){
   const boxes = document.createElement("div");
   boxes.className = "boxes";
   if([...w].length >= 6) boxes.classList.add("compact");
+  if([...w].length >= 8) boxes.classList.add("verycompact");
   if(showSyll){
     syl.split("-").forEach(sy => {
       const b = document.createElement("button");
@@ -1005,7 +1012,7 @@ function renderWordFlow(){
   if(wordFlow.done){
     const progress = document.createElement("div");
     progress.className = "game-progress";
-    progress.textContent = `${wordFlow.queue.length}/${wordFlow.queue.length}`;
+    progress.textContent = disp("реч") + ` ${wordFlow.queue.length}/${wordFlow.queue.length}`;
     s.appendChild(progress);
     const done = document.createElement("div");
     done.className = "praise";
@@ -1022,7 +1029,7 @@ function renderWordFlow(){
   selWord = wordFlow.queue[wordFlow.pos];
   const progress = document.createElement("div");
   progress.className = "game-progress";
-  progress.textContent = `${wordFlow.pos + 1}/${wordFlow.queue.length}`;
+  progress.textContent = disp("реч") + ` ${wordFlow.pos + 1}/${wordFlow.queue.length}`;
   s.appendChild(progress);
   appendWordCard(s, selWord);
 
@@ -1161,6 +1168,8 @@ function renderPlay(){
 
   const boxes = document.createElement("div");
   boxes.className = "boxes";
+  if(game.chars.length >= 6) boxes.classList.add("compact");
+  if(game.chars.length >= 8) boxes.classList.add("verycompact");
   game.chars.forEach((ch, i) => {
     const b = document.createElement("div");
     b.className = "lbox " + (i < game.pos ? "filled" : "slot");
