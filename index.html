@@ -396,6 +396,7 @@ let game = null;             // play mode state
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
 let bq = null;               // blend-quiz state
+let celebrationQueue = [];
 const STORAGE = {
   done:"slovoNaSlovo.done",
   letters:"slovoNaSlovo.celebratedLetters",
@@ -453,32 +454,31 @@ function markDone(word, letter, notify = false){
   const wasNew = !done.has(word);
   done.add(word);
   saveSet(STORAGE.done, done);
-  if(notify) checkCelebrations(letter);
+  if(wasNew && notify) checkCelebrations(letter);
 }
 function checkCelebrations(letter){
   if(letter && isLetterDone(letter) && !celebratedLetters.has(letter)){
     celebratedLetters.add(letter);
     saveSet(STORAGE.letters, celebratedLetters);
-    showCelebration(
-      disp("честитамо!"),
-      disp("прошли сте све речи на слово") + " " + dispLetter(letter) + "!",
-      false
-    );
-    confetti();
+    queueCelebration(disp("прошли сте све речи на слово") + " " + dispLetter(letter) + "!");
   }
   if(isAllDone() && !celebratedAll){
     celebratedAll = true;
     localStorage.setItem(STORAGE.all, "1");
-    showCelebration(
-      disp("честитамо!"),
-      disp("прошли сте све речи у делу учимо!"),
-      true
-    );
-    confetti();
+    queueCelebration(disp("прошли сте све речи у делу учимо!"));
   }
 }
-function showCelebration(title, text, completedAll){
-  $("celebrationTitle").textContent = title;
+function queueCelebration(text){
+  celebrationQueue.push(text);
+  if(!$("celebration").classList.contains("show")) showNextCelebration();
+}
+function showNextCelebration(){
+  const text = celebrationQueue.shift();
+  if(!text) return;
+  showCelebration(text);
+}
+function showCelebration(text){
+  $("celebrationTitle").textContent = disp("честитамо!");
   $("celebrationText").textContent = text;
   $("celebrationClose").textContent = disp("настави");
   $("celebrationReset").textContent = disp("почни поново");
@@ -487,11 +487,13 @@ function showCelebration(title, text, completedAll){
 }
 function hideCelebration(){
   $("celebration").classList.remove("show");
+  showNextCelebration();
 }
 function resetProgress(){
   done = new Set();
   celebratedLetters = new Set();
   celebratedAll = false;
+  celebrationQueue = [];
   localStorage.removeItem(STORAGE.done);
   localStorage.removeItem(STORAGE.letters);
   localStorage.removeItem(STORAGE.all);
@@ -1006,7 +1008,6 @@ function renderAll(){
   else if(mode === "sound") renderSound();
   else if(mode === "blend") renderBlend();
   else renderExercises();
-  if(mode === "learn") checkCelebrations(selLetter);
 }
 syncToggles();
 renderAll();
