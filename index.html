@@ -116,11 +116,13 @@
     padding:10px 12px;border-radius:12px;
     background:#f2f6fc;font-weight:800;font-size:17px;text-align:left;
     transition:.12s;
+    width:100%;
   }
   .chip:active{transform:scale(.97)}
   .chip.sel{background:var(--blue);color:#fff}
-  .chip .emo{font-size:22px}
-  .chip .ck{margin-left:auto;font-size:15px;color:var(--green);opacity:0;transform:scale(.5);transition:.2s}
+  .chip .emo{font-size:22px;flex:0 0 auto}
+  .chip .wordtxt{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.15}
+  .chip .ck{flex:0 0 auto;margin-left:auto;font-size:15px;color:var(--green);opacity:0;transform:scale(.5);transition:.2s}
   .chip.done .ck{opacity:1;transform:scale(1)}
   .chip.sel .ck{color:#bff5df}
   .hint-empty{color:var(--ink-soft);font-weight:600;font-size:15px;padding:8px 4px}
@@ -557,7 +559,7 @@ function renderWordlist(){
     c.className = "chip";
     if(mode === "learn" && done.has(w)) c.classList.add("done");
     if(selWord && selWord.w === w) c.classList.add("sel");
-    c.innerHTML = `<span class="emo">${e}</span><span>${dispU(w)}</span><span class="ck">✔</span>`;
+    c.innerHTML = `<span class="emo">${e}</span><span class="wordtxt">${dispU(w)}</span><span class="ck">✔</span>`;
     c.onclick = () => {
       selWord = { syl, w, e, letter: selLetter };
       showSyll = false;
@@ -576,7 +578,6 @@ function renderWordlist(){
 function renderLearn(){
   const s = $("stage");
   s.innerHTML = "";
-  addResetButton(s);
   if(!selWord){
     const p = document.createElement("div");
     p.className = "placeholder";
