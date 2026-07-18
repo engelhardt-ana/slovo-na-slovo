@@ -148,7 +148,7 @@
   /* ---------- main layout ---------- */
   main{
     flex:1;display:grid;gap:14px;
-    grid-template-columns:230px 1fr;
+    grid-template-columns:1fr;
     padding:0 16px 16px;align-items:start;
     min-height:0;
   }
@@ -161,6 +161,42 @@
     box-shadow:var(--shadow);padding:12px;
     display:flex;flex-direction:column;gap:8px;
     max-height:calc(100vh - 190px);overflow:auto;
+  }
+  @media (min-width:721px){
+    .wordlist{
+      max-height:none;
+      min-height:84px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      flex-direction:row;
+      align-items:stretch;
+      gap:10px;
+      padding:10px 12px;
+      scroll-snap-type:x proximity;
+    }
+    .wordlist h2{
+      flex:0 0 190px;
+      align-self:center;
+      padding-right:12px;
+      border-right:2px solid #edf2fa;
+      line-height:1.25;
+    }
+    .wordlist .resetbtn{
+      flex:0 0 auto;
+      align-self:center;
+      min-height:48px;
+      padding:10px 16px;
+    }
+    .wordlist .hint-empty{
+      align-self:center;
+      padding:0 8px;
+    }
+    .wordlist .chip{
+      flex:0 0 190px;
+      min-height:58px;
+      width:auto;
+      scroll-snap-align:start;
+    }
   }
   @media (max-width:720px){
     .wordlist{
