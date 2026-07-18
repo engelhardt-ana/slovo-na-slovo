@@ -6,6 +6,10 @@ Slovo na slovo is a browser-based educational game for children who are preparin
 
 The app does not use browser-generated speech. A parent, speech therapist, or teacher says the words aloud, while the app provides the visual structure and short tips for how to pronounce, show, and guide each exercise.
 
+## Project Description
+
+This project is a small open web app for Serbian early-reading practice. It combines alphabet exploration, word building, sound awareness, and parent-guided speech exercises in one place, so adults can run short, structured activities with a child at home or during speech therapy practice.
+
 ## Goal
 
 The goal of the project is to support early literacy practice for children around ages 5 to 7. It is designed as a helper for speech therapists and parents, especially when practicing Serbian letters, sound awareness, and the idea that a word is built from smaller parts.
@@ -48,6 +52,10 @@ This project was made with AI as part of learning how to use AI tools and Codex 
 Slovo na slovo je edukativna igra u browseru za decu koja se pripremaju za citanje na srpskom jeziku. Aplikacija podrzava srpsku cirilicu i latinicu i pomaze deci da povezu slova, glasove, slogove i reci kroz vizuelne i interaktivne zadatke.
 
 Aplikacija ne koristi automatski glas iz browsera. Rec izgovara roditelj, logoped ili ucitelj, dok aplikacija daje vizuelnu strukturu i kratke savete kako da se rec izgovori, pokaze i uvezba.
+
+## Opis projekta
+
+Ovaj projekat je mala otvorena web aplikacija za ranu pripremu za citanje na srpskom jeziku. Spaja ucenje azbuke/abecede, slaganje reci, prepoznavanje glasova i vezbe koje vodi odrasla osoba, kako bi roditelji i logopedi mogli da rade kratke i jasne aktivnosti sa detetom.
 
 ## Cilj
 
