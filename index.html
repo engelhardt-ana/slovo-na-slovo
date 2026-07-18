@@ -197,6 +197,25 @@
     background:#fbfdff;
   }
   .answer b{color:var(--ink);font-size:1.2em}
+  .exercise-list{
+    width:100%;display:grid;gap:12px;
+  }
+  .exercise-card{
+    width:100%;
+    border-radius:14px;
+    background:#f6f9ff;
+    border-left:5px solid var(--purple);
+    padding:14px;
+    color:var(--ink-soft);
+    font-weight:700;
+  }
+  .exercise-card h3{
+    color:var(--ink);
+    font-size:clamp(18px,3.6vw,23px);
+    margin-bottom:8px;
+  }
+  .exercise-card p{margin-top:8px;line-height:1.45}
+  .exercise-card b{color:var(--ink)}
 
   .placeholder{
     display:flex;flex-direction:column;align-items:center;gap:12px;
@@ -245,6 +264,7 @@
     <button id="mPlay">🧩 <span>Сложи реч</span></button>
     <button id="mSound">👂 <span>Погоди глас</span></button>
     <button id="mBlend">🔮 <span>Погоди реч</span></button>
+    <button id="mExercises">🪞 <span>Вежбе</span></button>
   </div>
 </div>
 
@@ -306,7 +326,7 @@ for(const l of AZBUKA){
 
 /* ================= state ================= */
 let script = "cyr";          // "cyr" | "lat"
-let mode = "learn";          // "learn" | "play" | "sound" | "blend"
+let mode = "learn";          // "learn" | "play" | "sound" | "blend" | "exercises"
 let selLetter = null;
 let selWord = null;          // {syl, w, e}
 let showSyll = false;
@@ -712,6 +732,61 @@ function renderBlend(){
   s.appendChild(tip);
 }
 
+/* ================= stage: exercises ================= */
+function renderExercises(){
+  const s = $("stage");
+  s.innerHTML = "";
+
+  const title = document.createElement("div");
+  title.className = "question";
+  title.textContent = "🪞 " + disp("вежбе за родитеље");
+  s.appendChild(title);
+
+  const intro = document.createElement("div");
+  intro.className = "answer";
+  intro.innerHTML =
+    disp("кратка припрема пре игре: радите пред огледалом најмање") +
+    " <b>" + disp("3 пута недељно по 7 минута") + "</b>. " +
+    disp("нека покрети буду спори, јасни и без журбе.");
+  s.appendChild(intro);
+
+  const list = document.createElement("div");
+  list.className = "exercise-list";
+
+  const warm = document.createElement("div");
+  warm.className = "exercise-card";
+  warm.innerHTML =
+    "<h3>🐴 " + disp("разгревање: коњић - печурка - хармоника") + "</h3>" +
+    "<p><b>" + disp("коњић") + ":</b> " +
+    disp("заокружите усне, благо отворите уста и цокћите језиком као копита коња.") + "</p>" +
+    "<p><b>" + disp("печурка") + ":</b> " +
+    disp("осмехните се, цокните језиком као коњић, па широк језик залепите за горње непце на пар секунди.") + "</p>" +
+    "<p><b>" + disp("хармоника") + ":</b> " +
+    disp("из положаја гљиве отварајте и затварајте уста без одвајања језика од непца.") + "</p>";
+  list.appendChild(warm);
+
+  const breath = document.createElement("div");
+  breath.className = "exercise-card";
+  breath.innerHTML =
+    "<h3>❄️ " + disp("дисање за говор: пахуљица") + "</h3>" +
+    "<p>" + disp("узмите комадић вате и растресите га као пахуљицу. дете је ветар који помера пахуљицу по столу.") + "</p>" +
+    "<p><b>" + disp("како дува") + ":</b> " +
+    disp("усне су округле, издах је гладак и миран, без надувавања образа.") + "</p>" +
+    "<p><b>" + disp("како удише") + ":</b> " +
+    disp("удах иде кроз нос, па поново дуг и тих издах кроз уста.") + "</p>";
+  list.appendChild(breath);
+
+  const gameTip = document.createElement("div");
+  gameTip.className = "exercise-card";
+  gameTip.innerHTML =
+    "<h3>👂 " + disp("мали савет пре игара") + "</h3>" +
+    "<p>" + disp("прво реците целу реч природно. затим је поновите спорије и покажите прстом слово или слог који дете треба да чује.") + "</p>" +
+    "<p>" + disp("ако дете греши, не исправљајте дуго: понудите модел, похвалите покушај и пробајте следећу реч.") + "</p>";
+  list.appendChild(gameTip);
+
+  s.appendChild(list);
+}
+
 /* ================= confetti ================= */
 function confetti(){
   const s = $("stage");
@@ -734,6 +809,7 @@ $("mLearn").onclick = () => setMode("learn");
 $("mPlay").onclick = () => setMode("play");
 $("mSound").onclick = () => setMode("sound");
 $("mBlend").onclick = () => setMode("blend");
+$("mExercises").onclick = () => setMode("exercises");
 
 function setMode(m){
   mode = m;
@@ -744,6 +820,11 @@ function setMode(m){
   }
   if(m === "sound") startSoundQuiz();
   if(m === "blend") startBlendQuiz();
+  if(m === "exercises"){
+    game = null;
+    sq = null;
+    bq = null;
+  }
   syncToggles();
   renderAll();
 }
@@ -757,14 +838,17 @@ function syncToggles(){
   $("mPlay").classList.toggle("on", mode === "play");
   $("mSound").classList.toggle("on", mode === "sound");
   $("mBlend").classList.toggle("on", mode === "blend");
+  $("mExercises").classList.toggle("on", mode === "exercises");
   $("mLearn").querySelector("span").textContent = disp("учимо");
   $("mPlay").querySelector("span").textContent = disp("сложи реч");
   $("mSound").querySelector("span").textContent = disp("погоди глас");
   $("mBlend").querySelector("span").textContent = disp("погоди реч");
+  $("mExercises").querySelector("span").textContent = disp("вежбе");
   $("logoText").textContent = disp("слово на слово").replace(/^./, c => c.toUpperCase());
   $("logoCube").textContent = script === "cyr" ? "С" : "S";
-  $("main").classList.toggle("nolist", mode === "sound" || mode === "blend");
-  $("wordlist").style.display = (mode === "sound" || mode === "blend") ? "none" : "";
+  $("main").classList.toggle("nolist", mode === "sound" || mode === "blend" || mode === "exercises");
+  $("wordlist").style.display = (mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabet").style.display = mode === "exercises" ? "none" : "";
 }
 
 /* ================= boot ================= */
@@ -774,7 +858,8 @@ function renderAll(){
   if(mode === "learn") renderLearn();
   else if(mode === "play") renderPlay();
   else if(mode === "sound") renderSound();
-  else renderBlend();
+  else if(mode === "blend") renderBlend();
+  else renderExercises();
 }
 syncToggles();
 renderAll();
