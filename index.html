@@ -247,6 +247,35 @@
     padding:11px 22px;border-radius:999px;box-shadow:0 4px 0 #2c8b66;
   }
   .nextbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #2c8b66}
+  .resetbtn{
+    margin-top:2px;
+    background:#fff4dc;color:var(--ink);
+    border:2px solid #ffd978;
+    padding:9px 12px;border-radius:12px;
+    font-weight:900;text-align:center;
+  }
+  .celebration{
+    position:fixed;inset:0;z-index:20;
+    display:none;place-items:center;
+    background:rgba(38,50,75,.28);
+    padding:18px;
+  }
+  .celebration.show{display:grid}
+  .celebration-box{
+    width:min(420px,100%);
+    background:var(--card);
+    border-radius:18px;
+    box-shadow:0 12px 40px rgba(38,50,75,.22);
+    padding:22px;
+    text-align:center;
+  }
+  .celebration-icon{font-size:44px;line-height:1;margin-bottom:8px}
+  .celebration-title{font-size:clamp(20px,5vw,28px);font-weight:900;color:var(--green);line-height:1.15}
+  .celebration-text{margin-top:8px;color:var(--ink-soft);font-weight:800;line-height:1.35}
+  .celebration-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+  .celebration-actions button{padding:10px 16px;border-radius:999px;font-weight:900}
+  .celebration-close{background:var(--green);color:#fff}
+  .celebration-reset{background:#eef2fa;color:var(--ink)}
 
   .subtoggle{display:flex;background:#eef2fa;border-radius:999px;padding:4px;gap:2px}
   .subtoggle button{padding:7px 14px;border-radius:999px;font-weight:800;font-size:14px;color:var(--ink-soft)}
@@ -289,6 +318,18 @@
   <aside class="wordlist" id="wordlist"></aside>
   <section class="stage" id="stage"></section>
 </main>
+
+<div class="celebration" id="celebration" role="dialog" aria-modal="true" aria-live="polite">
+  <div class="celebration-box">
+    <div class="celebration-icon">🎉</div>
+    <div class="celebration-title" id="celebrationTitle"></div>
+    <div class="celebration-text" id="celebrationText"></div>
+    <div class="celebration-actions">
+      <button class="celebration-close" id="celebrationClose"></button>
+      <button class="celebration-reset" id="celebrationReset"></button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ================= data ================= */
@@ -351,11 +392,18 @@ let mode = "learn";          // "learn" | "play" | "sound" | "blend" | "exercise
 let selLetter = null;
 let selWord = null;          // {syl, w, e}
 let showSyll = false;
-let done = new Set();
 let game = null;             // play mode state
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
 let bq = null;               // blend-quiz state
+const STORAGE = {
+  done:"slovoNaSlovo.done",
+  letters:"slovoNaSlovo.celebratedLetters",
+  all:"slovoNaSlovo.celebratedAll"
+};
+let done = loadSet(STORAGE.done);
+let celebratedLetters = loadSet(STORAGE.letters);
+let celebratedAll = localStorage.getItem(STORAGE.all) === "1";
 
 /* ================= helpers ================= */
 const $ = id => document.getElementById(id);
@@ -391,6 +439,65 @@ function answerBox(item, extra){
 function spacedLetters(cyrWord){ return [...cyrWord].map(ch => dispLetter(ch)).join(" - "); }
 function firstSound(cyrWord){ return dispLetter([...cyrWord][0]); }
 function lastSound(cyrWord){ const chars = [...cyrWord]; return dispLetter(chars[chars.length - 1]); }
+function loadSet(key){
+  try{ return new Set(JSON.parse(localStorage.getItem(key) || "[]")); }
+  catch{ return new Set(); }
+}
+function saveSet(key, set){ localStorage.setItem(key, JSON.stringify([...set])); }
+function allWords(){ return ALL.map(x => x.w); }
+function isLetterDone(letter){
+  return (DICT[letter] || []).every(([syl]) => done.has(syl.replace(/-/g, "")));
+}
+function isAllDone(){ return allWords().every(w => done.has(w)); }
+function markDone(word, letter, notify = false){
+  const wasNew = !done.has(word);
+  done.add(word);
+  saveSet(STORAGE.done, done);
+  if(wasNew && notify) checkCelebrations(letter);
+}
+function checkCelebrations(letter){
+  if(letter && isLetterDone(letter) && !celebratedLetters.has(letter)){
+    celebratedLetters.add(letter);
+    saveSet(STORAGE.letters, celebratedLetters);
+    showCelebration(
+      disp("честитамо!"),
+      disp("прошли сте све речи на слово") + " " + dispLetter(letter) + "!",
+      false
+    );
+    confetti();
+  }
+  if(isAllDone() && !celebratedAll){
+    celebratedAll = true;
+    localStorage.setItem(STORAGE.all, "1");
+    showCelebration(
+      disp("честитамо!"),
+      disp("прошли сте све речи у делу учимо!"),
+      true
+    );
+    confetti();
+  }
+}
+function showCelebration(title, text, completedAll){
+  $("celebrationTitle").textContent = title;
+  $("celebrationText").textContent = text;
+  $("celebrationClose").textContent = disp("настави");
+  $("celebrationReset").textContent = disp("почни поново");
+  $("celebrationReset").style.display = completedAll ? "" : "none";
+  $("celebration").classList.add("show");
+}
+function hideCelebration(){
+  $("celebration").classList.remove("show");
+}
+function resetProgress(){
+  done = new Set();
+  celebratedLetters = new Set();
+  celebratedAll = false;
+  localStorage.removeItem(STORAGE.done);
+  localStorage.removeItem(STORAGE.letters);
+  localStorage.removeItem(STORAGE.all);
+  hideCelebration();
+  renderAll();
+}
 
 /* ================= render: alphabet ================= */
 function renderAlphabet(){
@@ -424,6 +531,13 @@ function renderWordlist(){
     ? disp("речи на слово") + " " + dispLetter(selLetter) + ` (${entries.length})`
     : disp("речи");
   wrap.appendChild(h);
+  if(done.size){
+    const reset = document.createElement("button");
+    reset.className = "resetbtn";
+    reset.textContent = disp("почни поново");
+    reset.onclick = resetProgress;
+    wrap.appendChild(reset);
+  }
 
   if(!selLetter){
     const p = document.createElement("div");
@@ -440,10 +554,10 @@ function renderWordlist(){
     if(selWord && selWord.w === w) c.classList.add("sel");
     c.innerHTML = `<span class="emo">${e}</span><span>${dispU(w)}</span><span class="ck">✔</span>`;
     c.onclick = () => {
-      selWord = { syl, w, e };
+      selWord = { syl, w, e, letter: selLetter };
       showSyll = false;
       if(mode === "learn"){
-        done.add(w);
+        markDone(w, selLetter, true);
       } else {
         startGame(selWord);
       }
@@ -578,7 +692,7 @@ function renderPlay(){
           game.pos++;
           if(game.pos === game.chars.length){
             game.won = true;
-            done.add(game.w);
+            markDone(game.w, game.letter, false);
             confetti();
           }
           renderAll();
@@ -732,7 +846,7 @@ function renderBlend(){
         if(bq.solved) return;
         if(o.w === bq.w){
           bq.solved = true;
-          done.add(bq.w);
+          markDone(bq.w, bq.letter, false);
           confetti();
           setTimeout(renderAll, 400);
         } else {
@@ -832,6 +946,11 @@ $("mPlay").onclick = () => setMode("play");
 $("mSound").onclick = () => setMode("sound");
 $("mBlend").onclick = () => setMode("blend");
 $("mExercises").onclick = () => setMode("exercises");
+$("celebrationClose").onclick = hideCelebration;
+$("celebrationReset").onclick = resetProgress;
+$("celebration").onclick = e => {
+  if(e.target.id === "celebration") hideCelebration();
+};
 
 function setMode(m){
   mode = m;
