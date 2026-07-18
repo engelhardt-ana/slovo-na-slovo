@@ -6,6 +6,8 @@ Slovo na slovo is a browser-based educational app for early reading practice in 
 
 The app does not use browser-generated speech. A parent, speech therapist, or teacher says the words aloud, while the app provides the visual structure, game flow, and short guidance for practice.
 
+![Slovo na slovo preview](assets/readme/preview.png)
+
 ## Project Goal
 
 The goal is to support children around ages 5 to 7 as they prepare for reading. The app is especially useful for practicing:
@@ -88,6 +90,8 @@ If you want an improvement, found a mistake, or the project helped you and you w
 Slovo na slovo je edukativna web aplikacija za ranu pripremu citanja na srpskom jeziku. Podrzava srpsku cirilicu i latinicu i pomaze deci da povezu slova, glasove, slogove, slike i cele reci.
 
 Aplikacija ne koristi automatski glas iz browsera. Rec izgovara roditelj, logoped ili ucitelj, dok aplikacija daje vizuelnu strukturu, tok igre i kratke smernice za vezbu.
+
+![Prikaz aplikacije Slovo na slovo](assets/readme/preview.png)
 
 ## Cilj Projekta
 
