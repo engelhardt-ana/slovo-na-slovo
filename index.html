@@ -155,16 +155,18 @@
   main.nolist{grid-template-columns:1fr}
   @media (min-width:721px){
     main.learnmode{
-      width:min(1500px,calc(100% - 96px));
+      width:min(1320px,calc(100% - 112px));
       margin:0 auto;
       padding-left:0;
       padding-right:0;
-      grid-template-columns:230px minmax(0,1fr);
+      gap:28px;
+      grid-template-columns:280px minmax(0,1fr);
     }
     main.learnmode .stage{
       width:100%;
-      max-width:1120px;
-      justify-self:center;
+      max-width:none;
+      justify-self:stretch;
+      padding:30px 34px;
       min-height:340px;
     }
     main.nolist{
@@ -187,9 +189,17 @@
     max-height:calc(100vh - 190px);overflow:auto;
   }
   @media (min-width:721px){
+    main.learnmode .wordlist{
+      padding:16px;
+      gap:10px;
+    }
     main.learnmode.alphabet-open .wordlist{
-      margin-top:calc(-1 * min(170px,10vw));
-      max-height:calc(100vh - 190px);
+      margin-top:calc(-1 * min(135px,8vw));
+      max-height:calc(100vh - 210px);
+    }
+    main.learnmode .chip{
+      min-height:54px;
+      padding:12px 14px;
     }
   }
   @media (max-width:720px){
