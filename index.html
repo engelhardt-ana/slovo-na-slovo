@@ -708,7 +708,7 @@ function selectWordAt(letter, index){
   const [syl, e] = entries[next];
   selWord = { syl, w: syl.replace(/-/g, ""), e, letter };
   showSyll = false;
-  if(isMobile()) wordListOpen = next === entries.length - 1;
+  if(isMobile()) wordListOpen = false;
   markDone(selWord.w, letter, true);
 }
 function selectNextLetter(){
@@ -720,7 +720,7 @@ function selectNextLetter(){
       selLetter = letter;
       selectFirstOpenWord(letter);
       alphabetOpen = false;
-      wordListOpen = true;
+      if(isMobile()) wordListOpen = false;
       return;
     }
   }
@@ -735,7 +735,7 @@ function selectFirstOpenWord(letter){
   const [syl, e] = entries[index >= 0 ? index : 0];
   selWord = { syl, w: syl.replace(/-/g, ""), e, letter };
   showSyll = false;
-  wordListOpen = true;
+  if(isMobile()) wordListOpen = false;
 }
 function currentWordIndex(){
   if(!selLetter || !selWord) return -1;
@@ -759,7 +759,7 @@ function renderAlphabet(){
       else selWord = null;
       showSyll = false;
       alphabetOpen = false;
-      wordListOpen = true;
+      if(isMobile()) wordListOpen = false;
       if(mode === "play") startGame();
       renderAll();
     };
@@ -1368,7 +1368,11 @@ function syncToggles(){
   $("main").classList.toggle("learnmode", mode === "learn");
   $("wordlist").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("wordsToggle").style.display = mode === "learn" && selLetter ? "" : "none";
-  $("wordsToggle").textContent = (wordListOpen ? "▴ " : "▾ ") + disp(wordListOpen ? "сакриј речи" : "прикажи речи");
+  const letterWords = selLetter ? (DICT[selLetter] || []) : [];
+  const letterDoneCount = letterWords.filter(([syl]) => done.has(syl.replace(/-/g, ""))).length;
+  $("wordsToggle").textContent = wordListOpen
+    ? "▴ " + disp("сакриј речи")
+    : "▾ " + disp("прикажи речи") + ` (${letterDoneCount}/${letterWords.length})`;
   $("wordlist").classList.toggle("collapsed", !wordListOpen);
   $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "exercises") ? "none" : "";
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
