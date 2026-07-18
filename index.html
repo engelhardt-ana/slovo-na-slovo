@@ -552,7 +552,7 @@ function renderWordlist(){
     const w = syl.replace(/-/g, "");
     const c = document.createElement("button");
     c.className = "chip";
-    if(done.has(w)) c.classList.add("done");
+    if(mode === "learn" && done.has(w)) c.classList.add("done");
     if(selWord && selWord.w === w) c.classList.add("sel");
     c.innerHTML = `<span class="emo">${e}</span><span>${dispU(w)}</span><span class="ck">✔</span>`;
     c.onclick = () => {
@@ -698,7 +698,6 @@ function renderPlay(){
           game.pos++;
           if(game.pos === game.chars.length){
             game.won = true;
-            markDone(game.w, game.letter, false);
             confetti();
           }
           renderAll();
@@ -852,7 +851,6 @@ function renderBlend(){
         if(bq.solved) return;
         if(o.w === bq.w){
           bq.solved = true;
-          markDone(bq.w, bq.letter, false);
           confetti();
           setTimeout(renderAll, 400);
         } else {
