@@ -154,6 +154,19 @@
   }
   main.nolist{grid-template-columns:1fr}
   @media (min-width:721px){
+    main.learnmode{
+      width:min(1500px,calc(100% - 96px));
+      margin:0 auto;
+      padding-left:0;
+      padding-right:0;
+      grid-template-columns:230px minmax(0,1fr);
+    }
+    main.learnmode .stage{
+      width:100%;
+      max-width:1120px;
+      justify-self:center;
+      min-height:340px;
+    }
     main.nolist{
       width:min(920px,calc(100% - 32px));
       margin:0 auto;
@@ -175,8 +188,8 @@
   }
   @media (min-width:721px){
     main.learnmode.alphabet-open .wordlist{
-      margin-top:calc(-1 * min(300px,18vw));
-      max-height:calc(100vh - 120px);
+      margin-top:calc(-1 * min(170px,10vw));
+      max-height:calc(100vh - 190px);
     }
   }
   @media (max-width:720px){
