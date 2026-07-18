@@ -25,11 +25,17 @@ The project focuses on:
 
 ## Game Modes
 
-- Learn: choose a letter and explore words that start with it.
-- Build a word: arrange letters in the correct order.
+- Learn: choose a letter and explore words that start with it. This mode currently includes 551 Serbian words.
+- Build a word: arrange letters in the correct order. Game modes use a shorter pool of 160 easier words.
 - Guess the sound: identify the first or last sound in a word.
 - Guess the word: listen to sounds spoken by an adult and choose the matching word.
 - Exercises: short parent-guided warm-ups, including articulation exercises and speech-breathing practice.
+
+## Progress and Reset
+
+In Learn mode, completed words are marked with checkmarks and saved in the browser. When the child finishes all words for one letter, the app shows a congratulation modal. When all Learn words are completed, the app shows a final congratulation modal.
+
+The app also includes a reset button, so an adult can clear all checkmarks and start again.
 
 ## Exercises
 
@@ -72,11 +78,17 @@ Projekat se fokusira na:
 
 ## Rezim igre
 
-- Ucimo: dete bira slovo i istrazuje reci koje pocinju tim slovom.
-- Slozi rec: dete redja slova pravilnim redosledom.
+- Ucimo: dete bira slovo i istrazuje reci koje pocinju tim slovom. Ovaj rezim trenutno ima 551 srpsku rec.
+- Slozi rec: dete redja slova pravilnim redosledom. Rezim igre koristi kraci skup od 160 laksih reci.
 - Pogodi glas: dete prepoznaje prvi ili poslednji glas u reci.
 - Pogodi rec: odrasli izgovara glasove, a dete bira odgovarajucu rec.
 - Vezbe: kratke vezbe za roditelje, ukljucujuci artikulacionu gimnastiku i vezbe disanja za govor.
+
+## Napredak i reset
+
+U rezimu Ucimo, predjene reci se oznacavaju kvacicama i cuvaju se u browseru. Kada dete predje sve reci za jedno slovo, aplikacija prikazuje modal sa cestitkom. Kada su predjene sve reci u rezimu Ucimo, prikazuje se zavrsna cestitka.
+
+Aplikacija ima i dugme za reset, kako bi odrasla osoba mogla da obrise sve kvacice i pocne ponovo.
 
 ## Vezbe
 
