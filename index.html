@@ -358,9 +358,10 @@
 
   .question{font-weight:900;font-size:clamp(18px,4vw,24px);text-align:center}
   .letter-grid{
-    width:100%;
+    width:min(760px,100%);
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(64px,1fr));
+    grid-template-columns:repeat(auto-fit,72px);
+    justify-content:center;
     gap:10px;
   }
   .letter-card{
@@ -373,6 +374,9 @@
     font-weight:900;
     font-size:clamp(28px,8vw,48px);
     box-shadow:var(--shadow);
+  }
+  @media (max-width:720px){
+    .letter-grid{width:100%;grid-template-columns:repeat(auto-fit,minmax(58px,1fr))}
   }
   .letter-card.sel{background:var(--yellow);transform:rotate(-3deg)}
   .solo-letter{
