@@ -360,6 +360,15 @@
   .subtoggle button.on{background:var(--purple);color:#fff}
 
   .question{font-weight:900;font-size:clamp(18px,4vw,24px);text-align:center}
+  .game-progress{
+    align-self:center;
+    background:#eef2fa;
+    color:var(--ink-soft);
+    border-radius:999px;
+    padding:7px 14px;
+    font-weight:900;
+    font-size:14px;
+  }
   .letter-grid{
     width:min(760px,100%);
     display:grid;
@@ -560,6 +569,7 @@ let modeMenuOpen = !window.matchMedia("(max-width:720px)").matches;
 let wordListOpen = true;
 let game = null;             // play mode state
 let recentPlayWords = [];
+let playSolved = new Set();
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
 let bq = null;               // blend-quiz state
@@ -595,6 +605,13 @@ function pickFresh(pool, recent, keep = 6){
   recent.unshift(item.w);
   recent.splice(keep);
   return item;
+}
+function playPool(){ return PLAY_POOL.length ? PLAY_POOL : GAME_ALL; }
+function resetPlayRound(){
+  playSolved = new Set();
+  recentPlayWords = [];
+  startGame();
+  renderAll();
 }
 function makePicture(e){
   const wrap = document.createElement("div");
@@ -957,10 +974,14 @@ function renderLetterQuiz(){
 function startGame(sel){
   let item;
   if(sel && sel.clue){ item = sel; }
-  else if(PLAY_POOL.length){
-    item = pickFresh(PLAY_POOL, recentPlayWords);
-  } else {
-    item = pickFresh(GAME_ALL, recentPlayWords);
+  else {
+    const pool = playPool();
+    const remaining = pool.filter(x => !playSolved.has(x.w));
+    if(!remaining.length){
+      game = null;
+      return;
+    }
+    item = pickFresh(remaining, recentPlayWords);
   }
   const chars = [...item.w];
   let tiles = shuffle(chars.map((c, i) => ({c, i})));
@@ -972,7 +993,26 @@ function startGame(sel){
 function renderPlay(){
   const s = $("stage");
   s.innerHTML = "";
-  if(!game) startGame();
+  const total = playPool().length;
+  if(!game && playSolved.size < total) startGame();
+
+  const progress = document.createElement("div");
+  progress.className = "game-progress";
+  progress.textContent = disp("решено") + `: ${playSolved.size}/${total}`;
+  s.appendChild(progress);
+
+  if(playSolved.size >= total && !game){
+    const done = document.createElement("div");
+    done.className = "praise";
+    done.textContent = "🎉 " + disp("честитамо! прошли сте све речи. хоћете још једном?");
+    s.appendChild(done);
+    const again = document.createElement("button");
+    again.className = "nextbtn";
+    again.textContent = disp("играј поново") + " ↻";
+    again.onclick = resetPlayRound;
+    s.appendChild(again);
+    return;
+  }
 
   const clue = document.createElement("div");
   clue.className = "clue";
@@ -991,12 +1031,15 @@ function renderPlay(){
   if(game.won){
     const pr = document.createElement("div");
     pr.className = "praise";
-    pr.textContent = "🎉 " + disp("браво!") + " " + dispU(game.w);
+    const complete = playSolved.size >= total;
+    pr.textContent = complete
+      ? "🎉 " + disp("честитамо! прошли сте све речи. хоћете још једном?")
+      : "🎉 " + disp("браво!") + " " + dispU(game.w);
     s.appendChild(pr);
     const nx = document.createElement("button");
     nx.className = "nextbtn";
-    nx.textContent = disp("следећа реч") + " →";
-    nx.onclick = () => { startGame(); renderAll(); };
+    nx.textContent = complete ? disp("играј поново") + " ↻" : disp("следећа реч") + " →";
+    nx.onclick = complete ? resetPlayRound : () => { startGame(); renderAll(); };
     s.appendChild(nx);
   } else {
     const tl = document.createElement("div");
@@ -1012,6 +1055,7 @@ function renderPlay(){
           game.pos++;
           if(game.pos === game.chars.length){
             game.won = true;
+            playSolved.add(game.w);
             confetti();
           }
           renderAll();
