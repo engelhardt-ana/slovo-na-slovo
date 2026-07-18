@@ -183,11 +183,11 @@
     .stage{min-height:220px;padding:14px 12px;gap:12px}
     .picture{width:min(170px,50vw);min-height:90px;border-radius:16px}
     .bigemo{font-size:clamp(44px,12vw,66px)}
-    .stage .boxes{width:100%;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:2px 4px 8px}
+    .stage .boxes{width:100%;flex-wrap:nowrap;overflow-x:visible;justify-content:center;padding:2px 0 8px;gap:6px}
     .stage .boxes::-webkit-scrollbar{height:4px}
-    .lbox{min-width:52px;height:58px;border-radius:14px;font-size:clamp(24px,8vw,34px)}
-    .boxes.compact{gap:7px}
-    .boxes.compact .lbox{min-width:44px;height:52px;padding:0 9px;font-size:clamp(22px,7vw,30px)}
+    .lbox{min-width:44px;height:52px;padding:0 8px;border-radius:13px;font-size:clamp(22px,7vw,30px)}
+    .boxes.compact{gap:5px}
+    .boxes.compact .lbox{min-width:38px;height:48px;padding:0 7px;font-size:clamp(20px,6.4vw,27px)}
     .btnrow{gap:8px}
     .speakbtn{font-size:14px;padding:9px 12px}
     .answer{padding:8px 10px;font-size:14px}
@@ -1391,9 +1391,9 @@ function syncToggles(){
     ? "▴ " + disp("сакриј речи")
     : "▾ " + disp("прикажи речи") + ` (${letterDoneCount}/${letterWords.length})`;
   $("wordlist").classList.toggle("collapsed", !wordListOpen);
-  $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "exercises") ? "none" : "";
+  $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
-  $("alphabet").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "exercises") ? "none" : "";
+  $("alphabet").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 function activeModeName(){
