@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Слово на слово</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#Eef3fb;
+    --ink:#26324b;
+    --ink-soft:#5b6a8c;
+    --card:#ffffff;
+    --red:#e5484d;
+    --blue:#3a6ea5;
+    --yellow:#ffc94d;
+    --green:#3fb98a;
+    --purple:#8b6fc9;
+    --radius:18px;
+    --shadow:0 4px 0 rgba(38,50,75,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Nunito',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    display:flex;flex-direction:column;
+    min-height:100vh;
+  }
+  button{font-family:inherit;border:none;cursor:pointer;background:none;color:inherit}
+  button:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:12px 16px 6px;
+  }
+  .logo{
+    font-weight:900;font-size:clamp(20px,4vw,28px);letter-spacing:.5px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .logo .cube{
+    display:inline-grid;place-items:center;
+    width:1.5em;height:1.5em;border-radius:10px;
+    background:var(--yellow);color:var(--ink);
+    transform:rotate(-6deg);box-shadow:var(--shadow);
+    font-size:.9em;
+  }
+  .spacer{flex:1}
+  .toggle{
+    display:flex;background:#dde6f4;border-radius:999px;padding:4px;gap:2px;flex-wrap:wrap;
+  }
+  .toggle button{
+    padding:8px 13px;border-radius:999px;font-weight:800;font-size:14px;
+    color:var(--ink-soft);transition:.15s;white-space:nowrap;
+  }
+  .toggle button.on{background:var(--card);color:var(--ink);box-shadow:0 2px 0 rgba(38,50,75,.1)}
+  .sound-toggle{
+    display:flex;align-items:center;gap:7px;
+    background:var(--card);color:var(--ink);
+    border-radius:999px;padding:8px 12px;
+    font-weight:900;font-size:14px;
+    box-shadow:var(--shadow);
+    white-space:nowrap;
+  }
+  .sound-toggle.off{background:#f4dfe3;color:#8d2630}
+
+  .modebar{padding:4px 16px 10px;display:flex;justify-content:center}
+
+  /* ---------- alphabet ---------- */
+  .alphabet{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(46px,1fr));
+    gap:8px;padding:2px 16px 12px;
+  }
+  .abc{
+    aspect-ratio:1;border-radius:14px;
+    background:var(--card);
+    font-weight:900;font-size:clamp(17px,3.4vw,24px);
+    box-shadow:var(--shadow);
+    transition:transform .12s, background .15s, color .15s;
+    display:grid;place-items:center;line-height:1;
+  }
+  .abc:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(38,50,75,.12)}
+  .abc.sel{background:var(--blue);color:#fff;transform:rotate(-4deg) scale(1.06)}
+  .abc.inword{background:var(--yellow);color:var(--ink)}
+  .abc.sel.inword{background:var(--blue);color:var(--yellow)}
+
+  /* ---------- main layout ---------- */
+  main{
+    flex:1;display:grid;gap:14px;
+    grid-template-columns:230px 1fr;
+    padding:0 16px 16px;align-items:start;
+  }
+  main.nolist{grid-template-columns:1fr}
+  @media (max-width:720px){ main{grid-template-columns:1fr} }
+
+  /* word list */
+  .wordlist{
+    background:var(--card);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:12px;
+    display:flex;flex-direction:column;gap:8px;
+    max-height:62vh;overflow:auto;
+  }
+  .wordlist h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft)}
+  .chip{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:12px;
+    background:#f2f6fc;font-weight:800;font-size:17px;text-align:left;
+    transition:.12s;
+  }
+  .chip:active{transform:scale(.97)}
+  .chip.sel{background:var(--blue);color:#fff}
+  .chip .emo{font-size:22px}
+  .chip .ck{margin-left:auto;font-size:15px;color:var(--green);opacity:0;transform:scale(.5);transition:.2s}
+  .chip.done .ck{opacity:1;transform:scale(1)}
+  .chip.sel .ck{color:#bff5df}
+  .hint-empty{color:var(--ink-soft);font-weight:600;font-size:15px;padding:8px 4px}
+
+  /* ---------- stage ---------- */
+  .stage{
+    background:var(--card);border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:22px 18px;min-height:320px;
+    display:flex;flex-direction:column;align-items:center;gap:16px;
+    position:relative;overflow:hidden;
+  }
+  .picture{
+    width:min(210px,64vw);min-height:116px;
+    border-radius:18px;
+    display:grid;place-items:center;
+    background:linear-gradient(180deg,#dff1ff 0%,#ffffff 100%);
+    box-shadow:inset 0 -4px 0 rgba(38,50,75,.08), var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .picture::before,.picture::after{
+    content:"";position:absolute;border-radius:999px;background:rgba(255,255,255,.82);
+  }
+  .picture::before{width:70px;height:24px;left:18px;top:24px}
+  .picture::after{width:96px;height:32px;right:18px;bottom:22px}
+  .bigemo{font-size:clamp(56px,12vw,88px);line-height:1;z-index:1}
+  .boxes{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  .lbox{
+    min-width:62px;height:70px;padding:0 12px;
+    border-radius:16px;
+    display:grid;place-items:center;
+    font-weight:900;font-size:clamp(26px,6vw,40px);
+    background:var(--yellow);color:var(--ink);
+    box-shadow:0 5px 0 rgba(38,50,75,.18);
+    transition:transform .12s;
+  }
+  .lbox:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(38,50,75,.18)}
+  .lbox:nth-child(2n){transform:rotate(2deg)}
+  .lbox:nth-child(3n){transform:rotate(-2deg)}
+  .lbox.slot{background:#e7edf7;color:transparent;box-shadow:inset 0 3px 0 rgba(38,50,75,.08)}
+  .lbox.filled{background:var(--green);color:#fff;animation:pop .25s}
+  .lbox.wrong{animation:shake .3s}
+  .lbox.syll{background:var(--purple);color:#fff;min-width:80px;font-size:clamp(22px,5vw,32px)}
+  @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.12)}100%{transform:scale(1)}}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+
+  .speakbtn{
+    display:flex;align-items:center;gap:8px;
+    background:var(--red);color:#fff;
+    font-weight:900;font-size:17px;
+    padding:11px 20px;border-radius:999px;
+    box-shadow:0 4px 0 #b03338;
+    transition:.12s;
+  }
+  .speakbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #b03338}
+  .speakbtn.alt{background:var(--blue);box-shadow:0 4px 0 #2b527b}
+  .speakbtn.purp{background:var(--purple);box-shadow:0 4px 0 #6b52a3}
+  .btnrow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+  .tiles{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  .tile{
+    min-width:58px;height:64px;padding:0 12px;border-radius:16px;
+    display:grid;place-items:center;
+    font-weight:900;font-size:clamp(24px,5.5vw,36px);
+    background:var(--card);color:var(--ink);
+    border:3px solid #dfe7f3;
+    box-shadow:var(--shadow);
+    transition:.12s;
+  }
+  .tile:active{transform:translateY(3px)}
+  .tile.used{opacity:0;pointer-events:none;transform:scale(.4)}
+  .tile.good{background:var(--green);color:#fff;border-color:var(--green)}
+  .tile.emobtn{font-size:44px;min-width:80px;height:88px;border-radius:20px}
+
+  .adult{
+    margin-top:auto;width:100%;
+    background:#f6f9ff;border-radius:14px;
+    padding:12px 14px;font-size:14.5px;font-weight:600;color:var(--ink-soft);
+    border-left:5px solid var(--yellow);
+  }
+  .adult b{color:var(--ink)}
+  .answer{
+    width:100%;
+    border:3px dashed #d7e1ef;
+    border-radius:14px;
+    padding:10px 12px;
+    color:var(--ink-soft);
+    font-weight:800;
+    text-align:center;
+    background:#fbfdff;
+  }
+  .answer b{color:var(--ink);font-size:1.2em}
+
+  .placeholder{
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    color:var(--ink-soft);font-weight:700;text-align:center;padding:30px 10px;
+  }
+  .placeholder .arrow{font-size:40px}
+
+  .praise{
+    font-size:clamp(22px,5vw,30px);font-weight:900;color:var(--green);
+    animation:pop .4s;text-align:center;
+  }
+  .nextbtn{
+    background:var(--green);color:#fff;font-weight:900;font-size:17px;
+    padding:11px 22px;border-radius:999px;box-shadow:0 4px 0 #2c8b66;
+  }
+  .nextbtn:active{transform:translateY(3px);box-shadow:0 1px 0 #2c8b66}
+
+  .subtoggle{display:flex;background:#eef2fa;border-radius:999px;padding:4px;gap:2px}
+  .subtoggle button{padding:7px 14px;border-radius:999px;font-weight:800;font-size:14px;color:var(--ink-soft)}
+  .subtoggle button.on{background:var(--purple);color:#fff}
+
+  .question{font-weight:900;font-size:clamp(18px,4vw,24px);text-align:center}
+
+  .nosound{
+    position:fixed;left:50%;bottom:14px;transform:translateX(-50%);
+    background:var(--ink);color:#fff;font-size:13px;font-weight:700;
+    padding:8px 16px;border-radius:999px;opacity:.92;z-index:50;
+  }
+
+  .confetti{position:absolute;top:-20px;font-size:26px;animation:fall 1.6s ease-in forwards;pointer-events:none}
+  @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.2}}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="cube" id="logoCube">С</span><span id="logoText">Слово на слово</span></div>
+  <div class="spacer"></div>
+  <button class="sound-toggle off" id="soundToggle" type="button" aria-pressed="false">🔇 Звук</button>
+  <div class="toggle" id="scriptToggle">
+    <button id="sCyr" class="on">Ћир</button>
+    <button id="sLat">Lat</button>
+  </div>
+</header>
+
+<div class="modebar">
+  <div class="toggle" id="modeToggle">
+    <button id="mLearn" class="on">📖 <span>Учимо</span></button>
+    <button id="mPlay">🧩 <span>Сложи реч</span></button>
+    <button id="mSound">👂 <span>Погоди глас</span></button>
+    <button id="mBlend">🔮 <span>Погоди реч</span></button>
+  </div>
+</div>
+
+<div class="alphabet" id="alphabet"></div>
+
+<main id="main">
+  <aside class="wordlist" id="wordlist"></aside>
+  <section class="stage" id="stage"></section>
+</main>
+
+<script>
+/* ================= data ================= */
+const AZBUKA = ["а","б","в","г","д","ђ","е","ж","з","и","ј","к","л","љ","м","н","њ","о","п","р","с","т","ћ","у","ф","х","ц","ч","џ","ш"];
+const VOWELS = new Set(["а","е","и","о","у"]);
+
+const LAT = {"а":"a","б":"b","в":"v","г":"g","д":"d","ђ":"đ","е":"e","ж":"ž","з":"z","и":"i","ј":"j","к":"k","л":"l","љ":"lj","м":"m","н":"n","њ":"nj","о":"o","п":"p","р":"r","с":"s","т":"t","ћ":"ć","у":"u","ф":"f","х":"h","ц":"c","ч":"č","џ":"dž","ш":"š"};
+
+/* words stored with syllable hyphens */
+const DICT = {
+  "а":[["а-у-то","🚗"],["а-ви-он","✈️"],["а-на-нас","🍍"],["ај-ку-ла","🦈"],["а-у-то-бус","🚌"],["ас-тро-на-ут","🧑‍🚀"],["а-па-рат","📷"],["а-при-л","🌷"],["а-ква-ри-јум","🐠"],["ај-вар","🫙"],["а-дре-са","🏠"],["а-не-мон-а","🌸"],["а-ла-т","🔧"]],
+  "б":[["ба-на-на","🍌"],["брод","🚢"],["ба-ка","👵"],["ба-лон","🎈"],["бу-ба","🐞"],["бе-ба","👶"],["би-цикл","🚲"],["бо-ја","🎨"],["бун-де-ва","🎃"],["баш-та","🌻"],["бо-ца","🍼"],["бра-да","🧔"],["брег","⛰️"],["буб-њар","🥁"]],
+  "в":[["во-да","💧"],["воз","🚂"],["вук","🐺"],["виш-ња","🍒"],["ве-тар","💨"],["ва-тра","🔥"],["вра-та","🚪"],["во-ће","🍎"],["ви-љуш-ка","🍴"],["ве-дро","🪣"],["ва-за","🏺"],["ве-ша-ли-ца","🧥"],["вре-ћа","🛍️"],["ви-о-ли-на","🎻"]],
+  "г":[["ги-та-ра","🎸"],["го-луб","🕊️"],["гро-жђе","🍇"],["гус-ка","🦢"],["гљи-ва","🍄"],["груд-ва","⚪"],["гра-шак","🟢"],["град","🏙️"],["гу-ма","🛞"],["гла-ва","🙂"],["гри-ња","🔍"],["гај-ба","📦"],["гром","🌩️"]],
+  "д":[["др-во","🌳"],["ду-га","🌈"],["де-да","👴"],["дел-фин","🐬"],["ди-но-са-у-рус","🦖"],["де-те","🧒"],["дан","🌞"],["дом","🏠"],["друм","🛣️"],["дим","💨"],["дуг-ме","🔘"],["дво-риш-те","🏡"],["ди-ња","🍈"],["дла-н","✋"]],
+  "ђ":[["ђак","🎒"],["ђур-ђе-вак","🌼"],["ђон","👞"],["ђу-веч","🍲"],["ђев-рек","🥨"],["ђин-ђа","🧡"],["ђер-дан","📿"],["ђач-ка","🎒"]],
+  "е":[["ек-сер","🔩"],["е-кран","📺"],["е-ми-си-ја","🎬"],["е-ки-па","🧑‍🤝‍🧑"],["е-ле-фант","🐘"],["е-та-жер","📚"],["е-хо","📣"],["ес-ки-мо","🍦"],["е-мајл","✉️"],["е-ти-ке-та","🏷️"],["е-мо-ци-ја","😊"]],
+  "ж":[["жа-ба","🐸"],["жи-ра-фа","🦒"],["жир","🌰"],["жур-ка","🥳"],["жи-ца","🧵"],["же-ља","⭐"],["жбу-н","🌿"],["жва-ка","🍬"],["же-луд","🌰"],["жмур-ке","🙈"],["жа-ло-ст","😢"],["жут-о","🟡"]],
+  "з":[["зец","🐰"],["зуб","🦷"],["зве-зда","⭐"],["зми-ја","🐍"],["зи-ма","❄️"],["зво-но","🔔"],["зид","🧱"],["зе-ле-но","🟢"],["за-ста-ва","🚩"],["зе-бра","🦓"],["змај","🪁"],["зе-мља","🌍"],["зу-ја-ли-ца","🐝"]],
+  "и":[["и-гла","🪡"],["и-гра","🎲"],["и-грач-ка","🧸"],["из-вор","⛲"],["и-ме","🏷️"],["и-ко-на","🖼️"],["и-ви-ца","📏"],["и-скра","✨"],["ин-ди-го","🔵"],["и-де-ја","💡"],["и-глу","🏠"]],
+  "ј":[["ја-је","🥚"],["ја-бу-ка","🍎"],["јеж","🦔"],["ја-го-да","🍓"],["ју-тро","🌅"],["јел-ка","🎄"],["је-зик","👅"],["ја-стук","🛏️"],["јо-гурт","🥛"],["јак-на","🧥"],["ју-нак","🦸"],["ја-ха-ч","🏇"],["ју-ха","🥣"]],
+  "к":[["ку-ћа","🏠"],["ка-па","🧢"],["ки-ша","🌧️"],["кра-ва","🐄"],["кит","🐋"],["кључ","🔑"],["књи-га","📖"],["ко-лач","🍪"],["ка-шика","🥄"],["ко-шар-ка","🏀"],["кре-вет","🛏️"],["ку-ти-ја","📦"],["ка-ми-он","🚚"],["кру-шка","🍐"],["кру-на","👑"]],
+  "л":[["лав","🦁"],["лоп-та","⚽"],["лист","🍃"],["лед","🧊"],["леп-тир","🦋"],["ли-мун","🍋"],["лу-бе-ни-ца","🍉"],["лам-па","💡"],["лук","🧅"],["ли-си-ца","🦊"],["ле-стви-це","🪜"],["ли-ни-ја","📏"],["лу-та-к","🧸"],["ле-кар","🧑‍⚕️"]],
+  "љ":[["љу-бав","❤️"],["љи-љан","🌷"],["љу-љаш-ка","🎠"],["љу-би-чи-ца","💜"],["љу-ска","🟤"],["љут-о","🌶️"],["љу-бље-ње","😘"],["љу-ља-ти","🎠"]],
+  "м":[["ма-ма","👩"],["мач-ка","🐱"],["мед","🍯"],["ме-сец","🌙"],["миш","🐭"],["мо-ре","🌊"],["мле-ко","🥛"],["ма-ска","🎭"],["мост","🌉"],["мај-мун","🐒"],["мар-ке-р","🖊️"],["ме-да-ља","🏅"],["мра-в","🐜"],["ма-ли-на","🍓"]],
+  "н":[["нос","👃"],["но-га","🦵"],["не-бо","☁️"],["ноћ","🌃"],["но-со-рог","🦏"],["на-о-ча-ре","👓"],["нит","🧵"],["но-ви-не","📰"],["но-жи-це","✂️"],["на-ран-џа","🍊"],["но-тес","📓"],["но-вац","💰"],["на-кит","📿"]],
+  "њ":[["њи-ва","🌾"],["њуш-ка","🐽"],["њи-хаљ-ка","🪑"],["њам-њам","🍽️"]],
+  "о":[["о-ко","👁️"],["об-лак","☁️"],["о-ра-о","🦅"],["о-сам","8️⃣"],["ов-ца","🐑"],["о-лов-ка","✏️"],["о-рах","🌰"],["о-стр-во","🏝️"],["о-гле-да-ло","🪞"],["о-гра-да","🚧"],["о-де-ћа","👕"],["о-бу-ћа","👟"],["о-смех","🙂"]],
+  "п":[["пас","🐶"],["пче-ла","🐝"],["пи-ца","🍕"],["пти-ца","🐦"],["прст","☝️"],["пат-ка","🦆"],["по-мо-ран-џа","🍊"],["па-пир","📄"],["пе-сма","🎵"],["пи-џа-ма","👕"],["пе-шкир","🧺"],["пе-чур-ка","🍄"],["пу-ж","🐌"],["по-клон","🎁"],["пра-се","🐷"]],
+  "р":[["ри-ба","🐟"],["ру-ка","✋"],["ру-жа","🌹"],["ра-ке-та","🚀"],["ро-бот","🤖"],["ру-чак","🍽️"],["ре-па","🥕"],["рам","🖼️"],["ро-лер","🛼"],["ре-ка","🏞️"],["ра-нац","🎒"],["ре-п","🦊"],["ра-ди-о","📻"],["ру-ка-ви-ца","🧤"]],
+  "с":[["сун-це","☀️"],["со-ва","🦉"],["сир","🧀"],["сла-до-лед","🍦"],["ср-це","💗"],["снег","☃️"],["сто-ли-ца","🪑"],["сат","⏰"],["све-ћа","🕯️"],["су-па","🥣"],["сла-ма","🌾"],["сме-х","😄"],["се-ме","🌱"],["со-к","🧃"],["сан-ке","🛷"]],
+  "т":[["та-та","👨"],["тор-та","🎂"],["тра-ва","🌱"],["ти-гар","🐯"],["те-ле-фон","📱"],["трам-вај","🚋"],["та-њир","🍽️"],["тет-ка","👩"],["тре-шња","🍒"],["тор-ба","👜"],["ту-ли-пан","🌷"],["та-стер","⌨️"],["то-чак","🛞"],["ту-ш","🚿"]],
+  "ћ":[["ћур-ка","🦃"],["ћуп","🏺"],["ће-бе","🛌"],["ће-ва-пи","🍢"],["ћошак","↘️"],["ћу-ва-р","🧑‍✈️"],["ћер-ка","👧"]],
+  "у":[["у-во","👂"],["у-ста","👄"],["у-жи-на","🥪"],["у-чи-тељ","🧑‍🏫"],["у-ли-ца","🛣️"],["у-жад","🪢"],["у-лаз","🚪"],["у-да-рац","🥁"],["у-ље","🫒"],["у-ди-ца","🎣"],["у-џбе-ник","📘"]],
+  "ф":[["фо-ка","🦭"],["фуд-бал","🥅"],["фла-ша","🍼"],["фе-њер","🏮"],["фи-о-ка","🗄️"],["фо-то","📷"],["фа-ро-ви","💡"],["филм","🎬"],["фру-ла","🎶"],["фар-ба","🎨"],["фри-жи-дер","🧊"]],
+  "х":[["хлеб","🍞"],["ха-љи-на","👗"],["хе-ли-коп-тер","🚁"],["хо-бот-ни-ца","🐙"],["хр-чак","🐹"],["хор","🎶"],["ха-мак","🛏️"],["хра-на","🍽️"],["храст","🌳"],["хо-те-л","🏨"],["хлад-но","🥶"]],
+  "ц":[["цвет","🌸"],["црв","🐛"],["ци-пе-ла","👟"],["цир-кус","🎪"],["цвр-чак","🦗"],["цр-теж","🖍️"],["цве-ће","💐"],["цве-кла","🟣"],["ца-ре-вић","👑"]],
+  "ч":[["чај","🍵"],["ча-мац","🛶"],["ча-ра-па","🧦"],["чо-ко-ла-да","🍫"],["чо-век","🧍"],["чет-ки-ца","🪥"],["че-шаљ","💇"],["чи-зме","🥾"],["ча-ша","🥛"],["че-ло","🙂"],["чу-до","✨"],["че-кић","🔨"],["чво-р","🪢"]],
+  "џ":[["џем","🫙"],["џем-пер","🧥"],["џеп","👖"],["џу-до","🥋"],["џак","🛍️"],["џип","🚙"],["џез","🎷"],["џој-стик","🎮"],["џу-нгла","🌿"]],
+  "ш":[["шу-ма","🌲"],["ше-шир","🎩"],["шо-ља","☕"],["шко-ла","🏫"],["шар-га-ре-па","🥕"],["шиш-миш","🦇"],["шал","🧣"],["ше-ћер","🍬"],["шљи-ва","🟣"],["шкољ-ка","🐚"],["штап","🦯"],["шатор","⛺"],["шпа-гет-е","🍝"],["штапић","🥢"]]
+};
+
+/* flat list for random games: {w, syl, e, letter} */
+const ALL = [];
+for(const l of AZBUKA){
+  for(const [syl, e] of (DICT[l] || [])){
+    ALL.push({ syl, w: syl.replace(/-/g, ""), e, letter: l });
+  }
+}
+
+/* ================= state ================= */
+let script = "cyr";          // "cyr" | "lat"
+let mode = "learn";          // "learn" | "play" | "sound" | "blend"
+let selLetter = null;
+let selWord = null;          // {syl, w, e}
+let showSyll = false;
+let done = new Set();
+let game = null;             // play mode state
+let sq = null;               // sound-quiz state
+let soundPos = "first";      // "first" | "last"
+let bq = null;               // blend-quiz state
+
+/* ================= helpers ================= */
+const $ = id => document.getElementById(id);
+function toLat(s){ return [...s].map(c => LAT[c] ?? c).join(""); }
+function disp(cyr){ return script === "cyr" ? cyr : toLat(cyr); }
+function dispU(cyr){ return disp(cyr).toUpperCase(); }
+function dispLetter(c){ return script === "cyr" ? c.toUpperCase() : toLat(c).toUpperCase(); }
+function shuffle(a){
+  const r = [...a];
+  for(let i = r.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [r[i], r[j]] = [r[j], r[i]];
+  }
+  return r;
+}
+function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+function makePicture(e){
+  const wrap = document.createElement("div");
+  wrap.className = "picture";
+  const emo = document.createElement("div");
+  emo.className = "bigemo";
+  emo.textContent = e;
+  wrap.appendChild(emo);
+  return wrap;
+}
+function answerBox(item, extra){
+  const div = document.createElement("div");
+  div.className = "answer";
+  const syl = item.syl ? " · " + dispU(item.syl.split("-").join(" · ")) : "";
+  div.innerHTML = disp("реч за одрасле") + ": <b>" + dispU(item.w) + "</b>" + syl + (extra ? "<br>" + extra : "");
+  return div;
+}
+
+/* ================= speech ================= */
+const SOUND_KEY = "slovo-po-slovo-sound";
+let soundOn = localStorage.getItem(SOUND_KEY) === "on";
+let voice = null, hasVoice = false;
+function pickVoice(){
+  const vs = speechSynthesis.getVoices();
+  voice = vs.find(v => v.lang.toLowerCase().startsWith("sr"))
+       || vs.find(v => /serbian|срп/i.test(v.name))
+       || null;
+  hasVoice = !!voice;
+  syncSoundButton();
+}
+function showNotice(text){
+  const n = $("nosound");
+  if(n) n.remove();
+  const d = document.createElement("div");
+  d.className = "nosound"; d.id = "nosound";
+  d.textContent = text;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 4000);
+}
+if("speechSynthesis" in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+function syncSoundButton(){
+  const b = $("soundToggle");
+  if(!b) return;
+  b.classList.toggle("off", !soundOn);
+  b.setAttribute("aria-pressed", soundOn ? "true" : "false");
+  b.textContent = (soundOn ? "🔊 " : "🔇 ") + disp(soundOn ? "звук" : "без звука");
+}
+function canSpeak(){
+  if(!soundOn || !("speechSynthesis" in window)) return false;
+  if(!voice) pickVoice();
+  if(!voice){
+    showNotice(disp("српски глас није доступан на овом уређају"));
+    return false;
+  }
+  return true;
+}
+
+function utter(text, rate){
+  const u = new SpeechSynthesisUtterance(text);
+  u.voice = voice;
+  u.lang = voice.lang;
+  u.rate = rate;
+  u.pitch = 1.05;
+  return u;
+}
+function speak(cyrText, slow){
+  if(!canSpeak()) return;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter(toLat(cyrText), slow ? 0.7 : 0.85));
+}
+/* single letter: capitalized so TTS doesn't prepend "malo" */
+function speakLetter(cyrChar){
+  if(!canSpeak()) return;
+  speechSynthesis.cancel();
+  const l = toLat(cyrChar);
+  speechSynthesis.speak(utter(l.charAt(0).toUpperCase() + l.slice(1), 0.7));
+}
+/* spell out letters one by one with pauses (analysis / blending) */
+function speakSpelled(cyrWord, after){
+  if(!canSpeak()){ if(after) after(); return; }
+  speechSynthesis.cancel();
+  const chars = [...cyrWord];
+  let i = 0;
+  const next = () => {
+    if(i >= chars.length){ if(after) setTimeout(after, 300); return; }
+    const l = toLat(chars[i]);
+    const u = utter(l.charAt(0).toUpperCase() + l.slice(1), 0.65);
+    u.onend = () => setTimeout(next, 350);
+    speechSynthesis.speak(u);
+    i++;
+  };
+  next();
+}
+
+/* ================= render: alphabet ================= */
+function renderAlphabet(){
+  const wrap = $("alphabet");
+  wrap.innerHTML = "";
+  const wordChars = new Set(selWord && (mode === "learn" || mode === "play") ? [...selWord.w] : []);
+  AZBUKA.forEach(l => {
+    const b = document.createElement("button");
+    b.className = "abc";
+    if(l === selLetter && (mode === "learn" || mode === "play")) b.classList.add("sel");
+    if(wordChars.has(l)) b.classList.add("inword");
+    b.textContent = dispLetter(l);
+    b.onclick = () => {
+      selLetter = l;
+      selWord = null;
+      showSyll = false;
+      speakLetter(l);
+      if(mode === "play") startGame();
+      renderAll();
+    };
+    wrap.appendChild(b);
+  });
+}
+
+/* ================= render: word list ================= */
+function renderWordlist(){
+  const wrap = $("wordlist");
+  wrap.innerHTML = "";
+  const h = document.createElement("h2");
+  h.textContent = selLetter
+    ? disp("речи на слово") + " " + dispLetter(selLetter)
+    : disp("речи");
+  wrap.appendChild(h);
+
+  if(!selLetter){
+    const p = document.createElement("div");
+    p.className = "hint-empty";
+    p.textContent = disp("изабери слово горе") + " 👆";
+    wrap.appendChild(p);
+    return;
+  }
+  (DICT[selLetter] || []).forEach(([syl, e]) => {
+    const w = syl.replace(/-/g, "");
+    const c = document.createElement("button");
+    c.className = "chip";
+    if(done.has(w)) c.classList.add("done");
+    if(selWord && selWord.w === w) c.classList.add("sel");
+    c.innerHTML = `<span class="emo">${e}</span><span>${dispU(w)}</span><span class="ck">✔</span>`;
+    c.onclick = () => {
+      selWord = { syl, w, e };
+      showSyll = false;
+      if(mode === "learn"){
+        done.add(w);
+        speak(w);
+      } else {
+        startGame(selWord);
+      }
+      renderAll();
+    };
+    wrap.appendChild(c);
+  });
+}
+
+/* ================= stage: learn ================= */
+function renderLearn(){
+  const s = $("stage");
+  s.innerHTML = "";
+  if(!selWord){
+    s.innerHTML = `<div class="placeholder">
+      <div class="arrow">🧸</div>
+      <div>${disp("изабери слово, па реч — и кренимо!")}</div>
+    </div>`;
+    return;
+  }
+  const { syl, w, e } = selWord;
+
+  s.appendChild(makePicture(e));
+
+  const boxes = document.createElement("div");
+  boxes.className = "boxes";
+  if(showSyll){
+    syl.split("-").forEach(sy => {
+      const b = document.createElement("button");
+      b.className = "lbox syll";
+      b.textContent = dispU(sy);
+      b.onclick = () => speak(sy, true);
+      boxes.appendChild(b);
+    });
+  } else {
+    [...w].forEach(ch => {
+      const b = document.createElement("button");
+      b.className = "lbox";
+      b.textContent = dispLetter(ch);
+      b.onclick = () => speakLetter(ch);
+      boxes.appendChild(b);
+    });
+  }
+  s.appendChild(boxes);
+  s.appendChild(answerBox(selWord));
+
+  const row = document.createElement("div");
+  row.className = "btnrow";
+
+  const sp = document.createElement("button");
+  sp.className = "speakbtn";
+  sp.innerHTML = "🔊 " + dispU(w);
+  sp.onclick = () => speak(w);
+  row.appendChild(sp);
+
+  const sl = document.createElement("button");
+  sl.className = "speakbtn purp";
+  sl.innerHTML = showSyll ? "🔤 " + disp("слова") : "👏 " + disp("слогови");
+  sl.onclick = () => {
+    showSyll = !showSyll;
+    if(showSyll) speak(syl.split("-").join(", "), true);
+    renderAll();
+  };
+  row.appendChild(sl);
+
+  const an = document.createElement("button");
+  an.className = "speakbtn alt";
+  an.innerHTML = "🐌 " + disp("глас по глас");
+  an.onclick = () => speakSpelled(w);
+  row.appendChild(an);
+
+  s.appendChild(row);
+
+  const tip = document.createElement("div");
+  tip.className = "adult";
+  tip.innerHTML =
+    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
+    (showSyll
+      ? disp("пљескајте рукама за сваки слог: ") + "<b>" + dispU(syl.split("-").join(" · ")) + "</b>. " +
+        disp("питај: „колико слогова има реч? који је први слог?“")
+      : disp("питај: „која слова видиш у речи") + " <b>" + dispU(w) + "</b>“? " +
+        disp("додирните свако слово и прочитајте га. затим питај: „који глас чујеш први? а последњи?“"));
+  s.appendChild(tip);
+}
+
+/* ================= game: сложи реч ================= */
+function startGame(sel){
+  let item;
+  if(sel){ item = sel; }
+  else if(selLetter){ 
+    const [syl, e] = pick(DICT[selLetter]);
+    item = { syl, w: syl.replace(/-/g, ""), e };
+  } else {
+    item = pick(ALL);
+  }
+  const chars = [...item.w];
+  let tiles = shuffle(chars.map((c, i) => ({c, i})));
+  if(chars.length > 1 && tiles.every((t, i) => t.i === i)) tiles = shuffle(tiles);
+  game = { ...item, chars, tiles, pos: 0, won: false };
+  selWord = item;
+}
+
+function renderPlay(){
+  const s = $("stage");
+  s.innerHTML = "";
+  if(!game){
+    s.innerHTML = `<div class="placeholder">
+      <div class="arrow">🧩</div>
+      <div>${disp("изабери слово горе — добићеш реч за слагање!")}</div>
+    </div>`;
+    return;
+  }
+  s.appendChild(makePicture(game.e));
+
+  const boxes = document.createElement("div");
+  boxes.className = "boxes";
+  game.chars.forEach((ch, i) => {
+    const b = document.createElement("div");
+    b.className = "lbox " + (i < game.pos ? "filled" : "slot");
+    b.textContent = dispLetter(ch);
+    boxes.appendChild(b);
+  });
+  s.appendChild(boxes);
+  s.appendChild(answerBox(game));
+
+  if(game.won){
+    const pr = document.createElement("div");
+    pr.className = "praise";
+    pr.textContent = "🎉 " + disp("браво!") + " " + dispU(game.w);
+    s.appendChild(pr);
+    const nx = document.createElement("button");
+    nx.className = "nextbtn";
+    nx.textContent = disp("следећа реч") + " →";
+    nx.onclick = () => { startGame(); renderAll(); };
+    s.appendChild(nx);
+  } else {
+    const sp = document.createElement("button");
+    sp.className = "speakbtn alt";
+    sp.innerHTML = "🔊 " + disp("чуј реч");
+    sp.onclick = () => speak(game.w);
+    s.appendChild(sp);
+
+    const tl = document.createElement("div");
+    tl.className = "tiles";
+    game.tiles.forEach(t => {
+      const b = document.createElement("button");
+      b.className = "tile" + (t.done ? " used" : "");
+      b.textContent = dispLetter(t.c);
+      b.onclick = () => {
+        if(t.done || game.won) return;
+        if(t.c === game.chars[game.pos]){
+          t.done = true;
+          game.pos++;
+          speakLetter(t.c);
+          if(game.pos === game.chars.length){
+            game.won = true;
+            done.add(game.w);
+            setTimeout(() => speak(game.w), 600);
+            confetti();
+          }
+          renderAll();
+        } else {
+          b.classList.add("wrong");
+          setTimeout(() => b.classList.remove("wrong"), 350);
+        }
+      };
+      tl.appendChild(b);
+    });
+    s.appendChild(tl);
+  }
+
+  const tip = document.createElement("div");
+  tip.className = "adult";
+  tip.innerHTML =
+    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
+    disp("нека дете прво чује реч, па слаже слова редом. ако греши — изговори реч полако, наглашавајући сваки глас.");
+  s.appendChild(tip);
+}
+
+/* ================= game: погоди глас (first/last sound) ================= */
+function startSoundQuiz(){
+  const item = pick(ALL);
+  const target = soundPos === "first" ? [...item.w][0] : [...item.w][[...item.w].length - 1];
+  const others = shuffle(AZBUKA.filter(l => l !== target)).slice(0, 3);
+  sq = { ...item, target, options: shuffle([target, ...others]), solved: false };
+  setTimeout(() => speak(item.w), 350);
+}
+
+function renderSound(){
+  const s = $("stage");
+  s.innerHTML = "";
+  if(!sq) startSoundQuiz();
+
+  const st = document.createElement("div");
+  st.className = "subtoggle";
+  const bf = document.createElement("button");
+  bf.textContent = disp("први глас");
+  bf.className = soundPos === "first" ? "on" : "";
+  bf.onclick = () => { soundPos = "first"; startSoundQuiz(); renderAll(); };
+  const bl = document.createElement("button");
+  bl.textContent = disp("последњи глас");
+  bl.className = soundPos === "last" ? "on" : "";
+  bl.onclick = () => { soundPos = "last"; startSoundQuiz(); renderAll(); };
+  st.append(bf, bl);
+  s.appendChild(st);
+
+  s.appendChild(makePicture(sq.e));
+
+  const q = document.createElement("div");
+  q.className = "question";
+  q.textContent = soundPos === "first"
+    ? disp("који глас чујеш први?") + " 👂"
+    : disp("који глас чујеш последњи?") + " 👂";
+  s.appendChild(q);
+  s.appendChild(answerBox(sq, disp("тачан глас") + ": <b>" + dispLetter(sq.target) + "</b>"));
+
+  const sp = document.createElement("button");
+  sp.className = "speakbtn alt";
+  sp.innerHTML = "🔊 " + disp("чуј реч");
+  sp.onclick = () => speak(sq.w);
+  s.appendChild(sp);
+
+  if(sq.solved){
+    const pr = document.createElement("div");
+    pr.className = "praise";
+    pr.textContent = "🎉 " + disp("браво!") + " " + dispU(sq.w);
+    s.appendChild(pr);
+    const nx = document.createElement("button");
+    nx.className = "nextbtn";
+    nx.textContent = disp("следећа реч") + " →";
+    nx.onclick = () => { startSoundQuiz(); renderAll(); };
+    s.appendChild(nx);
+  } else {
+    const tl = document.createElement("div");
+    tl.className = "tiles";
+    sq.options.forEach(l => {
+      const b = document.createElement("button");
+      b.className = "tile";
+      b.textContent = dispLetter(l);
+      b.onclick = () => {
+        if(sq.solved) return;
+        if(l === sq.target){
+          sq.solved = true;
+          b.classList.add("good");
+          speakLetter(l);
+          confetti();
+          setTimeout(renderAll, 500);
+        } else {
+          b.classList.add("wrong");
+          speak(sq.w, true);
+          setTimeout(() => b.classList.remove("wrong"), 350);
+        }
+      };
+      tl.appendChild(b);
+    });
+    s.appendChild(tl);
+  }
+
+  const tip = document.createElement("div");
+  tip.className = "adult";
+  tip.innerHTML =
+    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
+    disp("ово вежба фонемски слух — темељ читања. изговори реч полако, наглашавајући тражени глас: „ммм-иш“ или „ми-шшш“.");
+  s.appendChild(tip);
+}
+
+/* ================= game: погоди реч (blending) ================= */
+function startBlendQuiz(){
+  const pool = ALL.filter(x => x.w.length >= 3 && x.w.length <= 5);
+  const item = pick(pool);
+  const others = shuffle(pool.filter(x => x.w !== item.w)).slice(0, 2);
+  bq = { ...item, options: shuffle([item, ...others]), solved: false };
+  setTimeout(() => speakSpelled(item.w), 400);
+}
+
+function renderBlend(){
+  const s = $("stage");
+  s.innerHTML = "";
+  if(!bq) startBlendQuiz();
+
+  const q = document.createElement("div");
+  q.className = "question";
+  q.textContent = "🔮 " + disp("слушај гласове — која је то реч?");
+  s.appendChild(q);
+
+  const boxes = document.createElement("div");
+  boxes.className = "boxes";
+  [...bq.w].forEach(ch => {
+    const b = document.createElement("button");
+    b.className = "lbox " + (bq.solved ? "" : "slot");
+    b.textContent = bq.solved ? dispLetter(ch) : "?";
+    if(!bq.solved){ b.style.color = "var(--ink-soft)"; }
+    b.onclick = () => { if(bq.solved) speakLetter(ch); };
+    boxes.appendChild(b);
+  });
+  s.appendChild(boxes);
+  s.appendChild(answerBox(bq));
+
+  const sp = document.createElement("button");
+  sp.className = "speakbtn purp";
+  sp.innerHTML = "🐌 " + disp("чуј гласове поново");
+  sp.onclick = () => speakSpelled(bq.w);
+  s.appendChild(sp);
+
+  if(bq.solved){
+    const pr = document.createElement("div");
+    pr.className = "praise";
+    pr.textContent = "🎉 " + disp("браво!") + " " + dispU(bq.w) + " " + bq.e;
+    s.appendChild(pr);
+    const nx = document.createElement("button");
+    nx.className = "nextbtn";
+    nx.textContent = disp("следећа реч") + " →";
+    nx.onclick = () => { startBlendQuiz(); renderAll(); };
+    s.appendChild(nx);
+  } else {
+    const tl = document.createElement("div");
+    tl.className = "tiles";
+    bq.options.forEach(o => {
+      const b = document.createElement("button");
+      b.className = "tile emobtn";
+      b.textContent = o.e;
+      b.setAttribute("aria-label", o.w);
+      b.onclick = () => {
+        if(bq.solved) return;
+        if(o.w === bq.w){
+          bq.solved = true;
+          done.add(bq.w);
+          speak(bq.w);
+          confetti();
+          setTimeout(renderAll, 400);
+        } else {
+          b.classList.add("wrong");
+          setTimeout(() => b.classList.remove("wrong"), 350);
+        }
+      };
+      tl.appendChild(b);
+    });
+    s.appendChild(tl);
+  }
+
+  const tip = document.createElement("div");
+  tip.className = "adult";
+  tip.innerHTML =
+    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
+    disp("ово је синтеза гласова: дете чује гласове одвојено и спаја их у реч. ако је тешко, изговорите гласове брже и ближе једне другима.");
+  s.appendChild(tip);
+}
+
+/* ================= confetti ================= */
+function confetti(){
+  const s = $("stage");
+  const emos = ["🎉","⭐","🎈","✨","🟡","🔵"];
+  for(let i = 0; i < 18; i++){
+    const d = document.createElement("div");
+    d.className = "confetti";
+    d.textContent = emos[i % emos.length];
+    d.style.left = Math.random() * 95 + "%";
+    d.style.animationDelay = (Math.random() * .5) + "s";
+    s.appendChild(d);
+    setTimeout(() => d.remove(), 2200);
+  }
+}
+
+/* ================= toggles ================= */
+$("sCyr").onclick = () => { script = "cyr"; syncToggles(); renderAll(); };
+$("sLat").onclick = () => { script = "lat"; syncToggles(); renderAll(); };
+$("soundToggle").onclick = () => {
+  soundOn = !soundOn;
+  localStorage.setItem(SOUND_KEY, soundOn ? "on" : "off");
+  if(!soundOn && "speechSynthesis" in window) speechSynthesis.cancel();
+  if(soundOn) speak(selWord?.w || game?.w || sq?.w || bq?.w || "слово");
+  syncSoundButton();
+};
+$("mLearn").onclick = () => setMode("learn");
+$("mPlay").onclick = () => setMode("play");
+$("mSound").onclick = () => setMode("sound");
+$("mBlend").onclick = () => setMode("blend");
+
+function setMode(m){
+  mode = m;
+  if(m === "play"){
+    if(selWord) startGame(selWord);
+    else if(selLetter) startGame();
+    else game = null;
+  }
+  if(m === "sound") startSoundQuiz();
+  if(m === "blend") startBlendQuiz();
+  syncToggles();
+  renderAll();
+}
+
+function syncToggles(){
+  $("sCyr").classList.toggle("on", script === "cyr");
+  $("sLat").classList.toggle("on", script === "lat");
+  $("sCyr").textContent = script === "cyr" ? "Ћир" : "Cyr";
+  $("sLat").textContent = script === "cyr" ? "Лат" : "Lat";
+  $("mLearn").classList.toggle("on", mode === "learn");
+  $("mPlay").classList.toggle("on", mode === "play");
+  $("mSound").classList.toggle("on", mode === "sound");
+  $("mBlend").classList.toggle("on", mode === "blend");
+  $("mLearn").querySelector("span").textContent = disp("учимо");
+  $("mPlay").querySelector("span").textContent = disp("сложи реч");
+  $("mSound").querySelector("span").textContent = disp("погоди глас");
+  $("mBlend").querySelector("span").textContent = disp("погоди реч");
+  $("logoText").textContent = disp("слово на слово").replace(/^./, c => c.toUpperCase());
+  $("logoCube").textContent = script === "cyr" ? "С" : "S";
+  $("main").classList.toggle("nolist", mode === "sound" || mode === "blend");
+  $("wordlist").style.display = (mode === "sound" || mode === "blend") ? "none" : "";
+  syncSoundButton();
+}
+
+/* ================= boot ================= */
+function renderAll(){
+  renderAlphabet();
+  renderWordlist();
+  if(mode === "learn") renderLearn();
+  else if(mode === "play") renderPlay();
+  else if(mode === "sound") renderSound();
+  else renderBlend();
+}
+syncToggles();
+renderAll();
+</script>
+</body>
+</html>
