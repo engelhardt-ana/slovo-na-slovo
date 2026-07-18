@@ -421,7 +421,7 @@
 <div class="modebar">
   <div class="toggle" id="modeToggle">
     <button id="mLearn" class="on">📖 <span>Учимо</span></button>
-    <button id="mLetters">🔠 <span>Азбука</span></button>
+    <button id="mLetters">🔠 <span>Абецеда</span></button>
     <button id="mLetterQuiz">🎯 <span>Квиз буква</span></button>
     <button id="mPlay">🧩 <span>Сложи реч</span></button>
     <button id="mSound">👂 <span>Погоди глас</span></button>
@@ -872,7 +872,7 @@ function renderLetters(){
 
   const q = document.createElement("div");
   q.className = "question";
-  q.textContent = "🔠 " + disp("азбука");
+  q.textContent = "🔠 " + disp("абецеда");
   s.appendChild(q);
 
   const grid = document.createElement("div");
@@ -911,6 +911,11 @@ function renderLetterQuiz(){
   q.textContent = "🎯 " + disp("које је ово слово?");
   s.appendChild(q);
 
+  const desc = document.createElement("div");
+  desc.className = "clue";
+  desc.textContent = disp("појави се насумично слово — дете треба да га именује");
+  s.appendChild(desc);
+
   const card = document.createElement("div");
   card.className = "solo-letter";
   card.textContent = dispLetter(letterQuiz);
@@ -931,7 +936,7 @@ function renderLetterQuiz(){
   tip.className = "adult";
   tip.innerHTML =
     "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
-    disp("прво питајте дете да именује слово. затим нека каже реч која почиње тим словом.");
+    disp("прво пустите дете да само именује слово. затим нека каже реч која почиње тим словом.");
   s.appendChild(tip);
 }
 
@@ -1299,7 +1304,7 @@ function syncToggles(){
   $("mBlend").classList.toggle("on", mode === "blend");
   $("mExercises").classList.toggle("on", mode === "exercises");
   $("mLearn").querySelector("span").textContent = disp("учимо");
-  $("mLetters").querySelector("span").textContent = disp("азбука");
+  $("mLetters").querySelector("span").textContent = disp("абецеда");
   $("mLetterQuiz").querySelector("span").textContent = disp("квиз буква");
   $("mPlay").querySelector("span").textContent = disp("сложи реч");
   $("mSound").querySelector("span").textContent = disp("погоди глас");
@@ -1322,7 +1327,7 @@ function syncToggles(){
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 function activeModeName(){
-  const names = {learn:"учимо", letters:"азбука", letterquiz:"квиз буква", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе"};
+  const names = {learn:"учимо", letters:"абецеда", letterquiz:"квиз буква", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе"};
   return disp(names[mode]);
 }
 
