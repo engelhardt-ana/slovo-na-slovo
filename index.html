@@ -321,6 +321,17 @@
   .subtoggle button.on{background:var(--purple);color:#fff}
 
   .question{font-weight:900;font-size:clamp(18px,4vw,24px);text-align:center}
+  .clue{
+    width:min(520px,100%);
+    background:#fff8e8;
+    border:2px solid #ffd978;
+    border-radius:14px;
+    padding:12px 14px;
+    font-weight:900;
+    color:var(--ink);
+    text-align:center;
+    line-height:1.35;
+  }
 
   .confetti{position:absolute;top:-20px;font-size:26px;animation:fall 1.6s ease-in forwards;pointer-events:none}
   @keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.2}}
@@ -422,6 +433,42 @@ for(const l of AZBUKA){
   }
 }
 const GAME_ALL = ALL.filter(x => x.game);
+const PLAY_CLUES = [
+  ["зец","животиња која воли шаргарепу"],
+  ["пас","чува кућу и маше репом"],
+  ["лав","краљ животиња"],
+  ["вук","животиња која завија у шуми"],
+  ["кит","велика животиња која живи у мору"],
+  ["риба","живи у води и има пераја"],
+  ["жаба","скаче и креће се близу воде"],
+  ["сова","птица која добро види ноћу"],
+  ["пуж","носи кућицу на леђима"],
+  ["миш","мала животиња која воли сир"],
+  ["кућа","место где живимо"],
+  ["вода","пијемо је када смо жедни"],
+  ["море","велика слана вода"],
+  ["хлеб","једемо га уз оброк"],
+  ["сир","жута или бела храна од млека"],
+  ["мед","слатко праве пчеле"],
+  ["сок","пиће од воћа"],
+  ["сат","показује време"],
+  ["зуб","њиме жваћемо храну"],
+  ["нос","њиме миришемо"],
+  ["око","њиме гледамо"],
+  ["уво","њиме слушамо"],
+  ["рука","њоме машемо и држимо"],
+  ["нога","њом ходамо"],
+  ["воз","иде по шинама"],
+  ["брод","плови по води"],
+  ["лед","хладна тврда вода"],
+  ["лист","расте на дрвету"],
+  ["жир","плод који пада са храста"],
+  ["змај","лети на ветру на канапу"]
+];
+const PLAY_POOL = PLAY_CLUES.map(([w, clue]) => {
+  const item = ALL.find(x => x.w === w);
+  return item ? {...item, clue} : null;
+}).filter(Boolean);
 
 function gameItemsForLetter(letter){
   return ALL.filter(x => x.letter === letter && x.game);
@@ -685,10 +732,9 @@ function renderLearn(){
 /* ================= game: сложи реч ================= */
 function startGame(sel){
   let item;
-  if(sel && [...sel.w].length < 5){ item = sel; }
-  else if(selLetter){ 
-    const pool = gameItemsForLetter(selLetter);
-    item = pick(pool.length ? pool : GAME_ALL);
+  if(sel && sel.clue){ item = sel; }
+  else if(PLAY_POOL.length){
+    item = pick(PLAY_POOL);
   } else {
     item = pick(GAME_ALL);
   }
@@ -702,14 +748,12 @@ function startGame(sel){
 function renderPlay(){
   const s = $("stage");
   s.innerHTML = "";
-  if(!game){
-    s.innerHTML = `<div class="placeholder">
-      <div class="arrow">🧩</div>
-      <div>${disp("изабери слово горе — добићеш реч за слагање!")}</div>
-    </div>`;
-    return;
-  }
-  s.appendChild(makePicture(game.e));
+  if(!game) startGame();
+
+  const clue = document.createElement("div");
+  clue.className = "clue";
+  clue.textContent = "🧩 " + disp("загонетка") + ": " + disp(game.clue);
+  s.appendChild(clue);
 
   const boxes = document.createElement("div");
   boxes.className = "boxes";
@@ -720,7 +764,7 @@ function renderPlay(){
     boxes.appendChild(b);
   });
   s.appendChild(boxes);
-  s.appendChild(answerBox(game));
+  if(game.won) s.appendChild(answerBox(game));
 
   if(game.won){
     const pr = document.createElement("div");
@@ -763,7 +807,7 @@ function renderPlay(){
   tip.className = "adult";
   tip.innerHTML =
     "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
-    disp("родитељ каже реч, дете слаже слова редом. ако запне, развуци само тражени глас и покажи следеће празно поље.");
+    disp("прочитајте загонетку и пустите дете да погоди реч. затим дете слаже слова редом; ако запне, изговорите само следећи глас.");
   s.appendChild(tip);
 }
 
@@ -1016,9 +1060,7 @@ function setMode(m){
   mode = m;
   if(isMobile()) modeMenuOpen = false;
   if(m === "play"){
-    if(selWord) startGame(selWord);
-    else if(selLetter) startGame();
-    else game = null;
+    startGame();
   }
   if(m === "sound") startSoundQuiz();
   if(m === "blend") startBlendQuiz();
@@ -1051,12 +1093,12 @@ function syncToggles(){
   $("modeMenuToggle").textContent = (modeMenuOpen ? "▴ " : "▾ ") + disp("режими") + ": " + activeModeName();
   $("modeMenuToggle").style.display = "";
   document.querySelector(".modebar").classList.toggle("collapsed", !modeMenuOpen);
-  $("main").classList.toggle("nolist", mode === "sound" || mode === "blend" || mode === "exercises");
+  $("main").classList.toggle("nolist", mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises");
   $("main").classList.toggle("learnmode", mode === "learn");
-  $("wordlist").style.display = (mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
-  $("alphabetToggle").style.display = mode === "exercises" ? "none" : "";
+  $("wordlist").style.display = (mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabetToggle").style.display = (mode === "play" || mode === "exercises") ? "none" : "";
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
-  $("alphabet").style.display = mode === "exercises" ? "none" : "";
+  $("alphabet").style.display = (mode === "play" || mode === "exercises") ? "none" : "";
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 function activeModeName(){

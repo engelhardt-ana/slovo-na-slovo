@@ -26,8 +26,8 @@ The project focuses on:
 ## Game Modes
 
 - Learn: choose a letter and explore words that start with it. This mode currently includes 551 Serbian words.
-- Build a word: arrange letters in the correct order. Game modes use a shorter pool of 160 easier words.
-- Guess the sound: identify the first or last sound in a word.
+- Build a word: solve a short riddle and arrange the letters in the correct order. This mode uses a curated pool of 30 easy words.
+- Guess the sound: identify the first or last sound in a word. Sound games use a shorter pool of 160 easier words.
 - Guess the word: listen to sounds spoken by an adult and choose the matching word.
 - Exercises: short parent-guided warm-ups, including articulation exercises and speech-breathing practice.
 
@@ -79,8 +79,8 @@ Projekat se fokusira na:
 ## Rezim igre
 
 - Ucimo: dete bira slovo i istrazuje reci koje pocinju tim slovom. Ovaj rezim trenutno ima 551 srpsku rec.
-- Slozi rec: dete redja slova pravilnim redosledom. Rezim igre koristi kraci skup od 160 laksih reci.
-- Pogodi glas: dete prepoznaje prvi ili poslednji glas u reci.
+- Slozi rec: dete resava kratku zagonetku i redja slova pravilnim redosledom. Ovaj rezim koristi poseban skup od 30 lakih reci.
+- Pogodi glas: dete prepoznaje prvi ili poslednji glas u reci. Igre sa glasovima koriste kraci skup od 160 laksih reci.
 - Pogodi rec: odrasli izgovara glasove, a dete bira odgovarajucu rec.
 - Vezbe: kratke vezbe za roditelje, ukljucujuci artikulacionu gimnastiku i vezbe disanja za govor.
 
