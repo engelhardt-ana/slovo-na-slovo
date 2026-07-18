@@ -559,6 +559,7 @@ let alphabetOpen = !window.matchMedia("(max-width:720px)").matches;
 let modeMenuOpen = !window.matchMedia("(max-width:720px)").matches;
 let wordListOpen = true;
 let game = null;             // play mode state
+let recentPlayWords = [];
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
 let bq = null;               // blend-quiz state
@@ -588,6 +589,13 @@ function shuffle(a){
   return r;
 }
 function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+function pickFresh(pool, recent, keep = 6){
+  const options = pool.filter(x => !recent.includes(x.w));
+  const item = pick(options.length ? options : pool);
+  recent.unshift(item.w);
+  recent.splice(keep);
+  return item;
+}
 function makePicture(e){
   const wrap = document.createElement("div");
   wrap.className = "picture";
@@ -950,9 +958,9 @@ function startGame(sel){
   let item;
   if(sel && sel.clue){ item = sel; }
   else if(PLAY_POOL.length){
-    item = pick(PLAY_POOL);
+    item = pickFresh(PLAY_POOL, recentPlayWords);
   } else {
-    item = pick(GAME_ALL);
+    item = pickFresh(GAME_ALL, recentPlayWords);
   }
   const chars = [...item.w];
   let tiles = shuffle(chars.map((c, i) => ({c, i})));
