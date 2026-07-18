@@ -188,6 +188,12 @@
       padding:7px 11px;
       font-size:13px;
     }
+    .modebar.nolist{
+      width:min(920px,calc(100% - 32px));
+      margin-left:auto;
+      margin-right:auto;
+      justify-content:center;
+    }
     .alphabet-toggle{
       width:var(--learn-content);
       margin-left:var(--learn-content-left);
@@ -1629,8 +1635,11 @@ function syncToggles(){
   $("logoCube").textContent = script === "cyr" ? "С" : "S";
   $("modeMenuToggle").textContent = (modeMenuOpen ? "▴ " : "▾ ") + disp("режими") + ": " + activeModeName();
   $("modeMenuToggle").style.display = "";
-  document.querySelector(".modebar").classList.toggle("collapsed", !modeMenuOpen);
-  $("main").classList.toggle("nolist", mode === "wordflow" || mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises" || mode === "info");
+  const noListMode = mode === "wordflow" || mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises" || mode === "info";
+  const modebar = document.querySelector(".modebar");
+  modebar.classList.toggle("collapsed", !modeMenuOpen);
+  modebar.classList.toggle("nolist", noListMode);
+  $("main").classList.toggle("nolist", noListMode);
   $("main").classList.toggle("learnmode", mode === "learn");
   $("main").classList.toggle("alphabet-open", mode === "learn" && alphabetOpen);
   $("wordlist").style.display = (mode === "wordflow" || mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises" || mode === "info") ? "none" : "";
