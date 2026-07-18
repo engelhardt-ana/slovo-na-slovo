@@ -2,19 +2,38 @@
 
 [Open the app on GitHub Pages](https://engelhardt-ana.github.io/slovo-na-slovo/)
 
-Slovo na slovo is a simple browser-based educational game for children who are preparing to read in Serbian. The app works with Serbian Cyrillic and Latin scripts and helps children connect letters, sounds, syllables, and words through visual and interactive tasks.
+Slovo na slovo is a browser-based educational game for children who are preparing to read in Serbian. The app supports Serbian Cyrillic and Latin scripts and helps children connect letters, sounds, syllables, and words through visual and interactive tasks.
+
+The app does not use browser-generated speech. A parent, speech therapist, or teacher says the words aloud, while the app provides the visual structure and short tips for how to pronounce, show, and guide each exercise.
 
 ## Goal
 
-The goal of the project is to support speech therapists, parents, and children during early literacy practice. Children can choose a letter, see words that begin with that letter, split a word into letters or syllables, and practice listening for the first or last sound in a word.
+The goal of the project is to support early literacy practice for children around ages 5 to 7. It is designed as a helper for speech therapists and parents, especially when practicing Serbian letters, sound awareness, and the idea that a word is built from smaller parts.
 
-The app is designed for children around ages 5 to 7 and focuses on:
+The project focuses on:
 
 - recognizing Serbian Cyrillic and Latin letters;
-- understanding that words are built from individual letters and sounds;
-- practicing phonemic awareness;
-- blending sounds into words;
-- making reading preparation more visual and playful.
+- connecting a letter with words that begin with that letter;
+- understanding that words are built from letters, sounds, and syllables;
+- practicing first and last sound awareness;
+- blending separate sounds into a word;
+- supporting adults with simple tips for pronunciation and demonstration.
+
+## Game Modes
+
+- Learn: choose a letter and explore words that start with it.
+- Build a word: arrange letters in the correct order.
+- Guess the sound: identify the first or last sound in a word.
+- Guess the word: listen to sounds spoken by an adult and choose the matching word.
+- Exercises: short parent-guided warm-ups, including articulation exercises and speech-breathing practice.
+
+## Exercises
+
+The Exercises tab includes:
+
+- articulation warm-up: horse, mushroom, accordion;
+- speech-breathing exercise with a cotton "snowflake";
+- short tips for adults on how to model sounds, syllables, and words clearly.
 
 ## About
 
@@ -26,19 +45,38 @@ This project was made with AI as part of learning how to use AI tools and Codex 
 
 [Otvori aplikaciju na GitHub Pages](https://engelhardt-ana.github.io/slovo-na-slovo/)
 
-Slovo na slovo je jednostavna edukativna igra u browseru za decu koja se pripremaju za citanje na srpskom jeziku. Aplikacija radi sa srpskom cirilicom i latinicom i pomaze deci da povezu slova, glasove, slogove i reci kroz vizuelne i interaktivne zadatke.
+Slovo na slovo je edukativna igra u browseru za decu koja se pripremaju za citanje na srpskom jeziku. Aplikacija podrzava srpsku cirilicu i latinicu i pomaze deci da povezu slova, glasove, slogove i reci kroz vizuelne i interaktivne zadatke.
+
+Aplikacija ne koristi automatski glas iz browsera. Rec izgovara roditelj, logoped ili ucitelj, dok aplikacija daje vizuelnu strukturu i kratke savete kako da se rec izgovori, pokaze i uvezba.
 
 ## Cilj
 
-Cilj projekta je da pomogne logopedima, roditeljima i deci u ranoj pripremi za citanje. Dete moze da izabere slovo, vidi reci koje pocinju tim slovom, rastavi rec na slova ili slogove i vezba prepoznavanje prvog ili poslednjeg glasa u reci.
+Cilj projekta je podrska ranoj pripremi za citanje kod dece uzrasta oko 5 do 7 godina. Aplikacija je zamisljena kao pomoc logopedima i roditeljima, posebno za vezbanje srpskih slova, fonemske svesti i razumevanja da se rec sastoji od manjih delova.
 
-Aplikacija je namenjena deci uzrasta oko 5 do 7 godina i fokusira se na:
+Projekat se fokusira na:
 
 - prepoznavanje srpske cirilice i latinice;
-- razumevanje da se rec sastoji od slova i glasova;
-- vezbanje fonemske svesti;
-- spajanje glasova u rec;
-- pripremu za citanje kroz igru i vizuelnu podrsku.
+- povezivanje slova sa recima koje pocinju tim slovom;
+- razumevanje da se rec sastoji od slova, glasova i slogova;
+- vezbanje prvog i poslednjeg glasa u reci;
+- spajanje odvojenih glasova u rec;
+- podrsku odraslima kroz kratke savete za izgovor i pokazivanje.
+
+## Rezim igre
+
+- Ucimo: dete bira slovo i istrazuje reci koje pocinju tim slovom.
+- Slozi rec: dete redja slova pravilnim redosledom.
+- Pogodi glas: dete prepoznaje prvi ili poslednji glas u reci.
+- Pogodi rec: odrasli izgovara glasove, a dete bira odgovarajucu rec.
+- Vezbe: kratke vezbe za roditelje, ukljucujuci artikulacionu gimnastiku i vezbe disanja za govor.
+
+## Vezbe
+
+Kartica Vezbe ukljucuje:
+
+- artikulaciono zagrevanje: konjic, pecurka, harmonika;
+- vezbu disanja sa vatom kao "pahuljicom";
+- kratke savete za odrasle kako jasnije pokazati glasove, slogove i reci.
 
 ## O projektu
 
