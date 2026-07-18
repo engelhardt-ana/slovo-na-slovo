@@ -977,8 +977,6 @@ function renderPlay(){
     boxes.appendChild(b);
   });
   s.appendChild(boxes);
-  if(game.won) s.appendChild(answerBox(game));
-
   if(game.won){
     const pr = document.createElement("div");
     pr.className = "praise";
@@ -1016,12 +1014,6 @@ function renderPlay(){
     s.appendChild(tl);
   }
 
-  const tip = document.createElement("div");
-  tip.className = "adult";
-  tip.innerHTML =
-    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
-    disp("прочитајте загонетку и пустите дете да погоди реч. затим дете слаже слова редом; ако запне, изговорите само следећи глас.");
-  s.appendChild(tip);
 }
 
 /* ================= game: погоди глас (first/last sound) ================= */
