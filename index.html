@@ -167,7 +167,26 @@
       margin-right:auto;
       padding-left:0;
       padding-right:0;
-      justify-content:flex-start;
+      justify-content:center;
+    }
+    #modeToggle{
+      display:grid;
+      grid-template-columns:repeat(5,max-content);
+      justify-content:center;
+      border-radius:24px;
+      gap:2px 4px;
+    }
+    #modeToggle::after{
+      content:"";
+      display:block;
+      width:76px;
+      height:1px;
+      pointer-events:none;
+      visibility:hidden;
+    }
+    #modeToggle button{
+      padding:7px 11px;
+      font-size:13px;
     }
     .alphabet-toggle{
       width:var(--learn-content);
@@ -1598,12 +1617,12 @@ function syncToggles(){
   $("mExercises").classList.toggle("on", mode === "exercises");
   $("mInfo").classList.toggle("on", mode === "info");
   $("mLearn").querySelector("span").textContent = disp("учимо");
-  $("mWordFlow").querySelector("span").textContent = disp("слово на слово");
+  $("mWordFlow").querySelector("span").textContent = disp("речи");
   $("mLetters").querySelector("span").textContent = disp("абецеда");
-  $("mLetterQuiz").querySelector("span").textContent = disp("квиз буква");
-  $("mPlay").querySelector("span").textContent = disp("сложи реч");
-  $("mSound").querySelector("span").textContent = disp("погоди глас");
-  $("mBlend").querySelector("span").textContent = disp("погоди реч");
+  $("mLetterQuiz").querySelector("span").textContent = disp("слово");
+  $("mPlay").querySelector("span").textContent = disp("сложи");
+  $("mSound").querySelector("span").textContent = disp("глас");
+  $("mBlend").querySelector("span").textContent = disp("погоди");
   $("mExercises").querySelector("span").textContent = disp("вежбе");
   $("mInfo").querySelector("span").textContent = disp("инфо");
   $("logoText").textContent = disp("слово на слово").replace(/^./, c => c.toUpperCase());
