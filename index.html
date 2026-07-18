@@ -162,6 +162,12 @@
     display:flex;flex-direction:column;gap:8px;
     max-height:calc(100vh - 190px);overflow:auto;
   }
+  @media (min-width:721px){
+    main.learnmode.alphabet-open .wordlist{
+      margin-top:calc(-1 * min(300px,18vw));
+      max-height:calc(100vh - 120px);
+    }
+  }
   @media (max-width:720px){
     .wordlist{
       max-height:none;
@@ -1394,6 +1400,7 @@ function syncToggles(){
   document.querySelector(".modebar").classList.toggle("collapsed", !modeMenuOpen);
   $("main").classList.toggle("nolist", mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises");
   $("main").classList.toggle("learnmode", mode === "learn");
+  $("main").classList.toggle("alphabet-open", mode === "learn" && alphabetOpen);
   $("wordlist").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("wordsToggle").style.display = mode === "learn" && selLetter ? "" : "none";
   const letterWords = selLetter ? (DICT[selLetter] || []) : [];
