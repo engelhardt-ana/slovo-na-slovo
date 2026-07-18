@@ -138,7 +138,9 @@
   .chip:active{transform:scale(.97)}
   .chip.sel{background:var(--blue);color:#fff}
   .chip .emo{font-size:22px;flex:0 0 auto}
-  .chip .wordtxt{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.15}
+  .chip .wordtxt{flex:1;min-width:0;overflow-wrap:normal;word-break:normal;line-height:1.15}
+  .chip.long .wordtxt{font-size:.88em}
+  .chip.verylong .wordtxt{font-size:.78em;overflow-wrap:anywhere}
   .chip .ck{flex:0 0 auto;margin-left:auto;font-size:15px;color:var(--green);opacity:0;transform:scale(.5);transition:.2s}
   .chip.done .ck{opacity:1;transform:scale(1)}
   .chip.sel .ck{color:#bff5df}
@@ -578,6 +580,8 @@ function renderWordlist(){
     const w = syl.replace(/-/g, "");
     const c = document.createElement("button");
     c.className = "chip";
+    if([...w].length >= 8) c.classList.add("long");
+    if([...w].length >= 11) c.classList.add("verylong");
     if(mode === "learn" && done.has(w)) c.classList.add("done");
     if(selWord && selWord.w === w) c.classList.add("sel");
     c.innerHTML = `<span class="emo">${e}</span><span class="wordtxt">${dispU(w)}</span><span class="ck">✔</span>`;
