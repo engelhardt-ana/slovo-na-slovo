@@ -90,8 +90,9 @@
 
   /* ---------- alphabet ---------- */
   .alphabet-toggle{
-    display:none;
-    margin:0 16px 10px;
+    display:flex;
+    width:min(760px,calc(100% - 32px));
+    margin:0 auto 10px;
     padding:10px 14px;border-radius:14px;
     background:var(--blue);color:#fff;
     font-weight:900;box-shadow:var(--shadow);
@@ -125,10 +126,10 @@
   .abc.sel{background:var(--blue);color:#fff;transform:rotate(-4deg) scale(1.06)}
   .abc.inword{background:var(--yellow);color:var(--ink)}
   .abc.sel.inword{background:var(--blue);color:var(--yellow)}
+  .alphabet.collapsed{display:none}
   @media (max-width:720px){
-    .alphabet-toggle{display:flex}
+    .alphabet-toggle{width:calc(100% - 24px)}
     .words-toggle{display:flex}
-    .alphabet.collapsed{display:none}
     .alphabet{
       width:100%;
       display:flex;
