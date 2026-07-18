@@ -157,12 +157,18 @@
       overflow-y:hidden;
       flex-direction:row;
       align-items:stretch;
-      gap:8px;
+      gap:12px;
       scroll-snap-type:x proximity;
     }
     .wordlist.collapsed{display:none}
-    .wordlist h2{flex:0 0 122px;align-self:center;line-height:1.25}
-    .resetbtn{flex:0 0 auto;align-self:center}
+    .wordlist h2{
+      flex:0 0 118px;
+      align-self:center;
+      line-height:1.25;
+      padding-right:10px;
+      border-right:2px solid #eef2fa;
+    }
+    .resetbtn{flex:0 0 auto;align-self:center;padding:8px 11px;font-size:13px}
     .chip{
       flex:0 0 clamp(132px,42vw,170px);
       min-height:54px;
