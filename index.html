@@ -928,11 +928,6 @@ function renderLetterQuiz(){
   card.textContent = dispLetter(letterQuiz);
   s.appendChild(card);
 
-  const answer = document.createElement("div");
-  answer.className = "answer";
-  answer.innerHTML = disp("слово за одрасле") + ": <b>" + dispLetter(letterQuiz) + "</b>";
-  s.appendChild(answer);
-
   const nx = document.createElement("button");
   nx.className = "nextbtn";
   nx.textContent = disp("следеће слово") + " →";
