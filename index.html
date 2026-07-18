@@ -108,6 +108,7 @@
     display:flex;flex-direction:column;gap:8px;
     max-height:62vh;overflow:auto;
   }
+  main.learnmode .wordlist{max-height:none;overflow:visible}
   .wordlist h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft)}
   .chip{
     display:flex;align-items:center;gap:10px;
@@ -417,9 +418,10 @@ function renderAlphabet(){
 function renderWordlist(){
   const wrap = $("wordlist");
   wrap.innerHTML = "";
+  const entries = selLetter ? (DICT[selLetter] || []) : [];
   const h = document.createElement("h2");
   h.textContent = selLetter
-    ? disp("речи на слово") + " " + dispLetter(selLetter)
+    ? disp("речи на слово") + " " + dispLetter(selLetter) + ` (${entries.length})`
     : disp("речи");
   wrap.appendChild(h);
 
@@ -430,7 +432,7 @@ function renderWordlist(){
     wrap.appendChild(p);
     return;
   }
-  (DICT[selLetter] || []).forEach(([syl, e]) => {
+  entries.forEach(([syl, e]) => {
     const w = syl.replace(/-/g, "");
     const c = document.createElement("button");
     c.className = "chip";
@@ -867,6 +869,7 @@ function syncToggles(){
   $("logoText").textContent = disp("слово на слово").replace(/^./, c => c.toUpperCase());
   $("logoCube").textContent = script === "cyr" ? "С" : "S";
   $("main").classList.toggle("nolist", mode === "sound" || mode === "blend" || mode === "exercises");
+  $("main").classList.toggle("learnmode", mode === "learn");
   $("wordlist").style.display = (mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("alphabet").style.display = mode === "exercises" ? "none" : "";
 }
