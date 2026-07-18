@@ -97,6 +97,7 @@
     flex:1;display:grid;gap:14px;
     grid-template-columns:230px 1fr;
     padding:0 16px 16px;align-items:start;
+    min-height:0;
   }
   main.nolist{grid-template-columns:1fr}
   @media (max-width:720px){ main{grid-template-columns:1fr} }
@@ -106,9 +107,9 @@
     background:var(--card);border-radius:var(--radius);
     box-shadow:var(--shadow);padding:12px;
     display:flex;flex-direction:column;gap:8px;
-    max-height:62vh;overflow:auto;
+    max-height:calc(100vh - 190px);overflow:auto;
   }
-  main.learnmode .wordlist{max-height:none;overflow:visible}
+  @media (max-width:720px){ .wordlist{max-height:42vh} }
   .wordlist h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-soft)}
   .chip{
     display:flex;align-items:center;gap:10px;
