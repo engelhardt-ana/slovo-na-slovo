@@ -1499,6 +1499,8 @@ function setMode(m){
   mode = m;
   if(isMobile()) modeMenuOpen = false;
   if(m === "learn" && isMobile()){
+    selLetter = "а";
+    selectFirstOpenWord(selLetter);
     alphabetOpen = true;
     requestAnimationFrame(resetAlphabetScroll);
   }
