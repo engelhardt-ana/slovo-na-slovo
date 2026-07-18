@@ -97,6 +97,14 @@
     font-weight:900;box-shadow:var(--shadow);
     justify-content:center;align-items:center;gap:8px;
   }
+  .words-toggle{
+    display:none;
+    margin:0 12px 10px;
+    padding:9px 12px;border-radius:14px;
+    background:#eef2fa;color:var(--ink);
+    font-weight:900;box-shadow:var(--shadow);
+    justify-content:center;align-items:center;gap:8px;
+  }
   .alphabet{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(46px,1fr));
@@ -116,6 +124,7 @@
   .abc.sel.inword{background:var(--blue);color:var(--yellow)}
   @media (max-width:720px){
     .alphabet-toggle{display:flex}
+    .words-toggle{display:flex}
     .alphabet.collapsed{display:none}
     .alphabet{max-height:18vh;overflow:auto;padding-bottom:8px}
   }
@@ -148,6 +157,7 @@
       gap:8px;
       scroll-snap-type:x proximity;
     }
+    .wordlist.collapsed{display:none}
     .wordlist h2{flex:0 0 122px;align-self:center;line-height:1.25}
     .resetbtn{flex:0 0 auto;align-self:center}
     .chip{
@@ -162,6 +172,8 @@
     .picture{width:min(170px,50vw);min-height:90px;border-radius:16px}
     .bigemo{font-size:clamp(44px,12vw,66px)}
     .lbox{min-width:52px;height:58px;border-radius:14px;font-size:clamp(24px,8vw,34px)}
+    .boxes.compact{gap:7px}
+    .boxes.compact .lbox{min-width:44px;height:52px;padding:0 9px;font-size:clamp(22px,7vw,30px)}
     .btnrow{gap:8px}
     .speakbtn{font-size:14px;padding:9px 12px}
     .answer{padding:8px 10px;font-size:14px}
@@ -420,6 +432,7 @@
 
 <button class="alphabet-toggle" id="alphabetToggle" type="button"></button>
 <div class="alphabet" id="alphabet"></div>
+<button class="words-toggle" id="wordsToggle" type="button"></button>
 
 <main id="main">
   <aside class="wordlist" id="wordlist"></aside>
@@ -537,6 +550,7 @@ let selWord = null;          // {syl, w, e}
 let showSyll = false;
 let alphabetOpen = !window.matchMedia("(max-width:720px)").matches;
 let modeMenuOpen = !window.matchMedia("(max-width:720px)").matches;
+let wordListOpen = true;
 let game = null;             // play mode state
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
@@ -662,7 +676,22 @@ function selectWordAt(letter, index){
   const [syl, e] = entries[next];
   selWord = { syl, w: syl.replace(/-/g, ""), e, letter };
   showSyll = false;
+  if(isMobile()) wordListOpen = next === entries.length - 1;
   markDone(selWord.w, letter, true);
+}
+function selectNextLetter(){
+  if(!selLetter) return;
+  const start = AZBUKA.indexOf(selLetter);
+  for(let step = 1; step <= AZBUKA.length; step++){
+    const letter = AZBUKA[(start + step + AZBUKA.length) % AZBUKA.length];
+    if((DICT[letter] || []).length){
+      selLetter = letter;
+      selectFirstOpenWord(letter);
+      alphabetOpen = false;
+      wordListOpen = true;
+      return;
+    }
+  }
 }
 function selectFirstOpenWord(letter){
   const entries = DICT[letter] || [];
@@ -674,6 +703,7 @@ function selectFirstOpenWord(letter){
   const [syl, e] = entries[index >= 0 ? index : 0];
   selWord = { syl, w: syl.replace(/-/g, ""), e, letter };
   showSyll = false;
+  wordListOpen = true;
 }
 function currentWordIndex(){
   if(!selLetter || !selWord) return -1;
@@ -697,6 +727,7 @@ function renderAlphabet(){
       else selWord = null;
       showSyll = false;
       alphabetOpen = false;
+      wordListOpen = true;
       if(mode === "play") startGame();
       renderAll();
     };
@@ -735,6 +766,7 @@ function renderWordlist(){
     c.onclick = () => {
       selWord = { syl, w, e, letter: selLetter };
       showSyll = false;
+      if(isMobile()) wordListOpen = false;
       if(mode === "learn"){
         markDone(w, selLetter, true);
       } else {
@@ -766,6 +798,7 @@ function renderLearn(){
 
   const boxes = document.createElement("div");
   boxes.className = "boxes";
+  if([...w].length >= 6) boxes.classList.add("compact");
   if(showSyll){
     syl.split("-").forEach(sy => {
       const b = document.createElement("button");
@@ -808,8 +841,13 @@ function renderLearn(){
   if(currentIndex >= 0){
     const next = document.createElement("button");
     next.className = "speakbtn alt";
-    next.textContent = disp("следећа реч") + " →";
-    next.onclick = () => { selectWordAt(selLetter, currentIndex + 1); renderAll(); };
+    const letterDone = isLetterDone(selLetter);
+    next.textContent = disp(letterDone ? "следеће слово" : "следећа реч") + " →";
+    next.onclick = () => {
+      if(letterDone) selectNextLetter();
+      else selectWordAt(selLetter, currentIndex + 1);
+      renderAll();
+    };
     row.appendChild(next);
   }
 
@@ -1220,6 +1258,10 @@ $("alphabetToggle").onclick = () => {
   alphabetOpen = !alphabetOpen;
   syncToggles();
 };
+$("wordsToggle").onclick = () => {
+  wordListOpen = !wordListOpen;
+  syncToggles();
+};
 $("celebrationClose").onclick = hideCelebration;
 $("celebrationReset").onclick = resetProgress;
 $("celebration").onclick = e => {
@@ -1271,6 +1313,9 @@ function syncToggles(){
   $("main").classList.toggle("nolist", mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises");
   $("main").classList.toggle("learnmode", mode === "learn");
   $("wordlist").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("wordsToggle").style.display = mode === "learn" && selLetter ? "" : "none";
+  $("wordsToggle").textContent = (wordListOpen ? "▴ " : "▾ ") + disp(wordListOpen ? "сакриј речи" : "прикажи речи");
+  $("wordlist").classList.toggle("collapsed", !wordListOpen);
   $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "exercises") ? "none" : "";
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
   $("alphabet").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "exercises") ? "none" : "";
