@@ -469,6 +469,7 @@
 <div class="modebar">
   <div class="toggle" id="modeToggle">
     <button id="mLearn" class="on">📖 <span>Учимо</span></button>
+    <button id="mWordFlow">🔀 <span>Слово на слово</span></button>
     <button id="mLetters">🔠 <span>Абецеда</span></button>
     <button id="mLetterQuiz">🎯 <span>Квиз буква</span></button>
     <button id="mPlay">🧩 <span>Сложи реч</span></button>
@@ -592,13 +593,14 @@ function gameItemsForLetter(letter){
 
 /* ================= state ================= */
 let script = "cyr";          // "cyr" | "lat"
-let mode = "learn";          // "learn" | "letters" | "letterquiz" | "play" | "sound" | "blend" | "exercises"
+let mode = "learn";          // "learn" | "wordflow" | "letters" | "letterquiz" | "play" | "sound" | "blend" | "exercises"
 let selLetter = null;
 let selWord = null;          // {syl, w, e}
 let showSyll = false;
 let alphabetOpen = !window.matchMedia("(max-width:720px)").matches;
 let modeMenuOpen = !window.matchMedia("(max-width:720px)").matches;
 let wordListOpen = true;
+let wordFlow = { queue: [], pos: 0, done: false };
 let game = null;             // play mode state
 let recentPlayWords = [];
 let playSolved = new Set();
@@ -643,6 +645,25 @@ function resetPlayRound(){
   playSolved = new Set();
   recentPlayWords = [];
   startGame();
+  renderAll();
+}
+function resetWordFlow(){
+  wordFlow = { queue: shuffle(ALL), pos: 0, done: false };
+  selWord = wordFlow.queue[0] || null;
+  showSyll = false;
+}
+function nextWordFlow(){
+  if(!wordFlow.queue.length) resetWordFlow();
+  if(wordFlow.pos >= wordFlow.queue.length - 1){
+    wordFlow.done = true;
+    selWord = null;
+    renderAll();
+    confetti();
+    return;
+  }
+  wordFlow.pos += 1;
+  selWord = wordFlow.queue[wordFlow.pos];
+  showSyll = false;
   renderAll();
 }
 function makePicture(e){
@@ -853,24 +874,9 @@ function renderWordlist(){
 }
 
 /* ================= stage: learn ================= */
-function renderLearn(){
-  const s = $("stage");
-  s.innerHTML = "";
-  if(!selWord){
-    const p = document.createElement("div");
-    p.className = "placeholder";
-    p.innerHTML = `
-      <div class="arrow">🧸</div>
-      <div>${disp("изабери слово и кренемо!")}</div>
-    `;
-    s.appendChild(p);
-    return;
-  }
-  if(selWord.letter && selLetter !== selWord.letter) selLetter = selWord.letter;
-  const { syl, w, e } = selWord;
-
+function appendWordCard(s, item){
+  const { syl, w, e } = item;
   s.appendChild(makePicture(e));
-
   const boxes = document.createElement("div");
   boxes.className = "boxes";
   if([...w].length >= 6) boxes.classList.add("compact");
@@ -890,7 +896,49 @@ function renderLearn(){
     });
   }
   s.appendChild(boxes);
-  s.appendChild(answerBox(selWord));
+  s.appendChild(answerBox(item));
+}
+
+function makeSyllableButton(){
+  const sl = document.createElement("button");
+  sl.className = "speakbtn purp";
+  sl.innerHTML = showSyll ? "🔤 " + disp("слова") : "👏 " + disp("слогови");
+  sl.onclick = () => {
+    showSyll = !showSyll;
+    renderAll();
+  };
+  return sl;
+}
+
+function appendLearnTip(s, item){
+  const { syl, w } = item;
+  const tip = document.createElement("div");
+  tip.className = "adult";
+  tip.innerHTML =
+    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
+    (showSyll
+      ? disp("пљескајте рукама за сваки слог: ") + "<b>" + dispU(syl.split("-").join(" · ")) + "</b>. " +
+        disp("кажи реч природно, па полако по слоговима; дете нека понови без журбе.")
+      : disp("покажи прстом слева надесно: ") + "<b>" + spacedLetters(w) + "</b>. " +
+        disp("прво кажи целу реч, па нека дете понови слова редом."));
+  s.appendChild(tip);
+}
+
+function renderLearn(){
+  const s = $("stage");
+  s.innerHTML = "";
+  if(!selWord){
+    const p = document.createElement("div");
+    p.className = "placeholder";
+    p.innerHTML = `
+      <div class="arrow">🧸</div>
+      <div>${disp("изабери слово и кренемо!")}</div>
+    `;
+    s.appendChild(p);
+    return;
+  }
+  if(selWord.letter && selLetter !== selWord.letter) selLetter = selWord.letter;
+  appendWordCard(s, selWord);
 
   const row = document.createElement("div");
   row.className = "btnrow";
@@ -906,14 +954,7 @@ function renderLearn(){
     row.appendChild(prev);
   }
 
-  const sl = document.createElement("button");
-  sl.className = "speakbtn purp";
-  sl.innerHTML = showSyll ? "🔤 " + disp("слова") : "👏 " + disp("слогови");
-  sl.onclick = () => {
-    showSyll = !showSyll;
-    renderAll();
-  };
-  row.appendChild(sl);
+  row.appendChild(makeSyllableButton());
 
   if(currentIndex >= 0){
     const next = document.createElement("button");
@@ -931,17 +972,49 @@ function renderLearn(){
   }
 
   s.appendChild(row);
+  appendLearnTip(s, selWord);
+}
 
-  const tip = document.createElement("div");
-  tip.className = "adult";
-  tip.innerHTML =
-    "👩‍🏫 <b>" + disp("за одрасле") + ":</b> " +
-    (showSyll
-      ? disp("пљескајте рукама за сваки слог: ") + "<b>" + dispU(syl.split("-").join(" · ")) + "</b>. " +
-        disp("кажи реч природно, па полако по слоговима; дете нека понови без журбе.")
-      : disp("покажи прстом слева надесно: ") + "<b>" + spacedLetters(w) + "</b>. " +
-        disp("прво кажи целу реч, па нека дете понови слова редом."));
-  s.appendChild(tip);
+function renderWordFlow(){
+  const s = $("stage");
+  s.innerHTML = "";
+  if(!wordFlow.queue.length) resetWordFlow();
+  if(wordFlow.done){
+    const progress = document.createElement("div");
+    progress.className = "game-progress";
+    progress.textContent = `${wordFlow.queue.length}/${wordFlow.queue.length}`;
+    s.appendChild(progress);
+    const done = document.createElement("div");
+    done.className = "praise";
+    done.textContent = "🎉 " + disp("честитамо! прошли сте све речи. хоћете још једном?");
+    s.appendChild(done);
+    const again = document.createElement("button");
+    again.className = "nextbtn";
+    again.textContent = disp("играј поново") + " ↻";
+    again.onclick = () => { resetWordFlow(); renderAll(); };
+    s.appendChild(again);
+    return;
+  }
+
+  selWord = wordFlow.queue[wordFlow.pos];
+  const progress = document.createElement("div");
+  progress.className = "game-progress";
+  progress.textContent = `${wordFlow.pos + 1}/${wordFlow.queue.length}`;
+  s.appendChild(progress);
+  appendWordCard(s, selWord);
+
+  const row = document.createElement("div");
+  row.className = "btnrow";
+  row.appendChild(makeSyllableButton());
+  const next = document.createElement("button");
+  next.className = "speakbtn alt";
+  const nextLabel = disp("следећа реч");
+  next.textContent = isMobile() ? "→" : nextLabel + " →";
+  next.setAttribute("aria-label", nextLabel);
+  next.onclick = nextWordFlow;
+  row.appendChild(next);
+  s.appendChild(row);
+  appendLearnTip(s, selWord);
 }
 
 /* ================= stage: alphabet ================= */
@@ -1342,6 +1415,7 @@ function confetti(){
 $("sCyr").onclick = () => { script = "cyr"; syncToggles(); renderAll(); };
 $("sLat").onclick = () => { script = "lat"; syncToggles(); renderAll(); };
 $("mLearn").onclick = () => setMode("learn");
+$("mWordFlow").onclick = () => setMode("wordflow");
 $("mLetters").onclick = () => setMode("letters");
 $("mLetterQuiz").onclick = () => setMode("letterquiz");
 $("mPlay").onclick = () => setMode("play");
@@ -1370,6 +1444,9 @@ $("celebration").onclick = e => {
 function setMode(m){
   mode = m;
   if(isMobile()) modeMenuOpen = false;
+  if(m === "wordflow"){
+    resetWordFlow();
+  }
   if(m === "play"){
     startGame();
   }
@@ -1391,6 +1468,7 @@ function syncToggles(){
   $("sCyr").textContent = script === "cyr" ? "Ћир" : "Cyr";
   $("sLat").textContent = script === "cyr" ? "Лат" : "Lat";
   $("mLearn").classList.toggle("on", mode === "learn");
+  $("mWordFlow").classList.toggle("on", mode === "wordflow");
   $("mLetters").classList.toggle("on", mode === "letters");
   $("mLetterQuiz").classList.toggle("on", mode === "letterquiz");
   $("mPlay").classList.toggle("on", mode === "play");
@@ -1398,6 +1476,7 @@ function syncToggles(){
   $("mBlend").classList.toggle("on", mode === "blend");
   $("mExercises").classList.toggle("on", mode === "exercises");
   $("mLearn").querySelector("span").textContent = disp("учимо");
+  $("mWordFlow").querySelector("span").textContent = disp("слово на слово");
   $("mLetters").querySelector("span").textContent = disp("абецеда");
   $("mLetterQuiz").querySelector("span").textContent = disp("квиз буква");
   $("mPlay").querySelector("span").textContent = disp("сложи реч");
@@ -1409,10 +1488,10 @@ function syncToggles(){
   $("modeMenuToggle").textContent = (modeMenuOpen ? "▴ " : "▾ ") + disp("режими") + ": " + activeModeName();
   $("modeMenuToggle").style.display = "";
   document.querySelector(".modebar").classList.toggle("collapsed", !modeMenuOpen);
-  $("main").classList.toggle("nolist", mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises");
+  $("main").classList.toggle("nolist", mode === "wordflow" || mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises");
   $("main").classList.toggle("learnmode", mode === "learn");
   $("main").classList.toggle("alphabet-open", mode === "learn" && alphabetOpen);
-  $("wordlist").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("wordlist").style.display = (mode === "wordflow" || mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("wordsToggle").style.display = mode === "learn" && selLetter ? "" : "none";
   const letterWords = selLetter ? (DICT[selLetter] || []) : [];
   const letterDoneCount = letterWords.filter(([syl]) => done.has(syl.replace(/-/g, ""))).length;
@@ -1420,13 +1499,13 @@ function syncToggles(){
     ? "▴ " + disp("сакриј речи")
     : "▾ " + disp("прикажи речи") + ` (${letterDoneCount}/${letterWords.length})`;
   $("wordlist").classList.toggle("collapsed", !wordListOpen);
-  $("alphabetToggle").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabetToggle").style.display = (mode === "wordflow" || mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
-  $("alphabet").style.display = (mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabet").style.display = (mode === "wordflow" || mode === "letters" || mode === "letterquiz" || mode === "play" || mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 function activeModeName(){
-  const names = {learn:"учимо", letters:"абецеда", letterquiz:"квиз буква", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе"};
+  const names = {learn:"учимо", wordflow:"слово на слово", letters:"абецеда", letterquiz:"квиз буква", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе"};
   return disp(names[mode]);
 }
 
@@ -1438,6 +1517,7 @@ function renderAll(){
   renderAlphabet();
   renderWordlist();
   if(mode === "learn") renderLearn();
+  else if(mode === "wordflow") renderWordFlow();
   else if(mode === "letters") renderLetters();
   else if(mode === "letterquiz") renderLetterQuiz();
   else if(mode === "play") renderPlay();
