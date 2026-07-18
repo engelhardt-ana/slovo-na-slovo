@@ -33,45 +33,61 @@ The goal is to support children around ages 5 to 7 as they prepare for reading. 
 
 The full word list currently contains **551 Serbian words**. Shorter game pools are used where needed so the tasks stay manageable for young children.
 
-## Progress
-
-In `Learn`, completed words are stored locally in the browser. The app shows a congratulation modal when all words for a letter are completed, and another one when all Learn words are completed. A reset button clears all saved checkmarks.
-
-`Build a word` tracks progress through its 30-word round and avoids repeats until the round is complete.
-
-## Screenshots
+## Feature Screenshots
 
 ### Learn
+
+Choose a letter and explore words that start with it. The word list has its own scroll, and completed words are marked with checkmarks.
 
 ![Learn mode](assets/readme/learn.png)
 
 ### Words
 
+Move through the full word list in a random order with previous and next navigation.
+
 ![Random word flow](assets/readme/word-flow.png)
 
 ### Alphabet
+
+Open a calm standalone view of Serbian letters for naming and recognition practice.
 
 ![Alphabet mode](assets/readme/alphabet.png)
 
 ### Letter Quiz
 
+Show one random letter at a time so the child can name it aloud.
+
 ![Letter quiz](assets/readme/letter-quiz.png)
 
 ### Build A Word
+
+Solve a short riddle and build the answer letter by letter from a 30-word game pool.
 
 ![Build a word](assets/readme/build-word.png)
 
 ### Guess The Sound
 
+Practice hearing the first or last sound in a word.
+
 ![Guess the sound](assets/readme/sound-quiz.png)
 
 ### Guess The Word
+
+The adult says sounds separately, and the child chooses the matching picture.
 
 ![Guess the word](assets/readme/guess-word.png)
 
 ### Exercises
 
+Short articulation and speech-breathing warm-ups for children before reading practice.
+
 ![Exercises](assets/readme/exercises.png)
+
+## Progress
+
+In `Learn`, completed words are stored locally in the browser. The app shows a congratulation modal when all words for a letter are completed, and another one when all Learn words are completed. A reset button clears all saved checkmarks.
+
+`Build a word` tracks progress through its 30-word round and avoids repeats until the round is complete.
 
 ## Author And AI
 
@@ -118,45 +134,61 @@ Cilj je podrska deci uzrasta oko 5 do 7 godina u pripremi za citanje. Aplikacija
 
 Puna lista trenutno ima **551 srpsku rec**. Za pojedine igre koriste se krace liste kako bi zadaci ostali laki i pregledni za malu decu.
 
-## Napredak
-
-U rezimu `Ucimo`, predjene reci se cuvaju lokalno u browseru. Aplikacija prikazuje cestitku kada su predjene sve reci za jedno slovo, a zatim i zavrsnu cestitku kada su predjene sve reci u rezimu Ucimo. Dugme za reset brise sve kvacice.
-
-`Slozi` prati napredak kroz krug od 30 reci i ne ponavlja reci dok se krug ne zavrsi.
-
-## Snimci Ekrana
+## Snimci Funkcionalnosti
 
 ### Ucimo
+
+Dete bira slovo i istrazuje reci koje pocinju tim slovom. Lista reci ima svoj scroll, a predjene reci se oznacavaju kvacicama.
 
 ![Ucimo](assets/readme/learn.png)
 
 ### Reci
 
+Nasumican prolazak kroz celu listu reci, sa prethodnom i sledecom recju.
+
 ![Reci](assets/readme/word-flow.png)
 
 ### Abeceda
+
+Mirna samostalna tabla sa srpskim slovima za imenovanje i prepoznavanje.
 
 ![Abeceda](assets/readme/alphabet.png)
 
 ### Slovo
 
+Prikazuje se jedno nasumicno slovo koje dete treba da imenuje naglas.
+
 ![Slovo](assets/readme/letter-quiz.png)
 
 ### Slozi
+
+Dete cita kratku zagonetku i slaze odgovor slovo po slovo iz liste od 30 reci.
 
 ![Slozi](assets/readme/build-word.png)
 
 ### Glas
 
+Vezbanje prvog ili poslednjeg glasa u reci.
+
 ![Glas](assets/readme/sound-quiz.png)
 
 ### Pogodi
+
+Odrasli izgovara glasove odvojeno, a dete bira odgovarajucu sliku.
 
 ![Pogodi](assets/readme/guess-word.png)
 
 ### Vezbe
 
+Kratke vezbe za artikulaciju i govorno disanje pre citanja.
+
 ![Vezbe](assets/readme/exercises.png)
+
+## Napredak
+
+U rezimu `Ucimo`, predjene reci se cuvaju lokalno u browseru. Aplikacija prikazuje cestitku kada su predjene sve reci za jedno slovo, a zatim i zavrsnu cestitku kada su predjene sve reci u rezimu Ucimo. Dugme za reset brise sve kvacice.
+
+`Slozi` prati napredak kroz krug od 30 reci i ne ponavlja reci dok se krug ne zavrsi.
 
 ## Autor I AI
 
