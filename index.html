@@ -74,6 +74,14 @@
   .modebar{padding:4px 16px 10px;display:flex;justify-content:center}
 
   /* ---------- alphabet ---------- */
+  .alphabet-toggle{
+    display:none;
+    margin:0 16px 10px;
+    padding:10px 14px;border-radius:14px;
+    background:var(--blue);color:#fff;
+    font-weight:900;box-shadow:var(--shadow);
+    justify-content:center;align-items:center;gap:8px;
+  }
   .alphabet{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(46px,1fr));
@@ -91,6 +99,11 @@
   .abc.sel{background:var(--blue);color:#fff;transform:rotate(-4deg) scale(1.06)}
   .abc.inword{background:var(--yellow);color:var(--ink)}
   .abc.sel.inword{background:var(--blue);color:var(--yellow)}
+  @media (max-width:720px){
+    .alphabet-toggle{display:flex}
+    .alphabet.collapsed{display:none}
+    .alphabet{max-height:34vh;overflow:auto;padding-bottom:8px}
+  }
 
   /* ---------- main layout ---------- */
   main{
@@ -315,6 +328,7 @@
   </div>
 </div>
 
+<button class="alphabet-toggle" id="alphabetToggle" type="button"></button>
 <div class="alphabet" id="alphabet"></div>
 
 <main id="main">
@@ -395,6 +409,7 @@ let mode = "learn";          // "learn" | "play" | "sound" | "blend" | "exercise
 let selLetter = null;
 let selWord = null;          // {syl, w, e}
 let showSyll = false;
+let alphabetOpen = true;
 let game = null;             // play mode state
 let sq = null;               // sound-quiz state
 let soundPos = "first";      // "first" | "last"
@@ -443,6 +458,7 @@ function answerBox(item, extra){
 function spacedLetters(cyrWord){ return [...cyrWord].map(ch => dispLetter(ch)).join(" - "); }
 function firstSound(cyrWord){ return dispLetter([...cyrWord][0]); }
 function lastSound(cyrWord){ const chars = [...cyrWord]; return dispLetter(chars[chars.length - 1]); }
+function isMobile(){ return window.matchMedia("(max-width:720px)").matches; }
 function loadSet(key){
   try{ return new Set(JSON.parse(localStorage.getItem(key) || "[]")); }
   catch{ return new Set(); }
@@ -527,6 +543,7 @@ function renderAlphabet(){
       selLetter = l;
       selWord = null;
       showSyll = false;
+      if(isMobile()) alphabetOpen = false;
       if(mode === "play") startGame();
       renderAll();
     };
@@ -954,6 +971,10 @@ $("mPlay").onclick = () => setMode("play");
 $("mSound").onclick = () => setMode("sound");
 $("mBlend").onclick = () => setMode("blend");
 $("mExercises").onclick = () => setMode("exercises");
+$("alphabetToggle").onclick = () => {
+  alphabetOpen = !alphabetOpen;
+  syncToggles();
+};
 $("celebrationClose").onclick = hideCelebration;
 $("celebrationReset").onclick = resetProgress;
 $("celebration").onclick = e => {
@@ -998,7 +1019,10 @@ function syncToggles(){
   $("main").classList.toggle("nolist", mode === "sound" || mode === "blend" || mode === "exercises");
   $("main").classList.toggle("learnmode", mode === "learn");
   $("wordlist").style.display = (mode === "sound" || mode === "blend" || mode === "exercises") ? "none" : "";
+  $("alphabetToggle").style.display = mode === "exercises" ? "none" : "";
+  $("alphabetToggle").textContent = (alphabetOpen ? "▴ " : "▾ ") + disp(alphabetOpen ? "сакриј азбуку" : "прикажи азбуку");
   $("alphabet").style.display = mode === "exercises" ? "none" : "";
+  $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 
 /* ================= boot ================= */
