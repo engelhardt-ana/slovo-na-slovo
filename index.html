@@ -427,6 +427,12 @@
   }
   .exercise-card p{margin-top:8px;line-height:1.45}
   .exercise-card b{color:var(--ink)}
+  .exercise-card a{
+    color:var(--purple);
+    font-weight:900;
+    text-decoration:none;
+  }
+  .exercise-card a:hover{text-decoration:underline}
 
   .placeholder{
     display:flex;flex-direction:column;align-items:center;gap:12px;
@@ -1682,7 +1688,7 @@ function syncToggles(){
   $("alphabet").classList.toggle("collapsed", !alphabetOpen);
 }
 function activeModeName(){
-  const names = {learn:"учимо", wordflow:"слово на слово", letters:"абецеда", letterquiz:"квиз буква", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе", info:"инфо"};
+  const names = {learn:"учимо", wordflow:"слово на слово", letters:"абецеда", letterquiz:"квиз буква", play:"сложи реч", sound:"погоди глас", blend:"погоди реч", exercises:"вежбе за децу", info:"инфо"};
   return disp(names[mode]);
 }
 
