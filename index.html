@@ -723,6 +723,7 @@ function selectWordAt(letter, index){
   if(!entries.length) return;
   const next = (index + entries.length) % entries.length;
   const [syl, e] = entries[next];
+  selLetter = letter;
   selWord = { syl, w: syl.replace(/-/g, ""), e, letter };
   showSyll = false;
   if(isMobile()) wordListOpen = false;
@@ -748,6 +749,7 @@ function selectFirstOpenWord(letter){
     selWord = null;
     return;
   }
+  selLetter = letter;
   const index = entries.findIndex(([syl]) => !done.has(syl.replace(/-/g, "")));
   const [syl, e] = entries[index >= 0 ? index : 0];
   selWord = { syl, w: syl.replace(/-/g, ""), e, letter };
@@ -755,8 +757,9 @@ function selectFirstOpenWord(letter){
   if(isMobile()) wordListOpen = false;
 }
 function currentWordIndex(){
-  if(!selLetter || !selWord) return -1;
-  return (DICT[selLetter] || []).findIndex(([syl]) => syl.replace(/-/g, "") === selWord.w);
+  if(!selWord) return -1;
+  const letter = selWord.letter || selLetter;
+  return (DICT[letter] || []).findIndex(([syl]) => syl.replace(/-/g, "") === selWord.w);
 }
 
 /* ================= render: alphabet ================= */
@@ -841,6 +844,7 @@ function renderLearn(){
     s.appendChild(p);
     return;
   }
+  if(selWord.letter && selLetter !== selWord.letter) selLetter = selWord.letter;
   const { syl, w, e } = selWord;
 
   s.appendChild(makePicture(e));
@@ -870,12 +874,13 @@ function renderLearn(){
   row.className = "btnrow";
 
   const currentIndex = currentWordIndex();
+  const navLetter = selWord.letter || selLetter;
   if(currentIndex >= 0){
     const prev = document.createElement("button");
     prev.className = "speakbtn alt";
     prev.textContent = isMobile() ? "←" : "← " + disp("претходна реч");
     prev.setAttribute("aria-label", disp("претходна реч"));
-    prev.onclick = () => { selectWordAt(selLetter, currentIndex - 1); renderAll(); };
+    prev.onclick = () => { selectWordAt(navLetter, currentIndex - 1); renderAll(); };
     row.appendChild(prev);
   }
 
@@ -891,13 +896,13 @@ function renderLearn(){
   if(currentIndex >= 0){
     const next = document.createElement("button");
     next.className = "speakbtn alt";
-    const letterDone = isLetterDone(selLetter);
+    const letterDone = isLetterDone(navLetter);
     const nextLabel = disp(letterDone ? "следеће слово" : "следећа реч");
     next.textContent = isMobile() ? "→" : nextLabel + " →";
     next.setAttribute("aria-label", nextLabel);
     next.onclick = () => {
       if(letterDone) selectNextLetter();
-      else selectWordAt(selLetter, currentIndex + 1);
+      else selectWordAt(navLetter, currentIndex + 1);
       renderAll();
     };
     row.appendChild(next);
@@ -1403,6 +1408,9 @@ function activeModeName(){
 
 /* ================= boot ================= */
 function renderAll(){
+  if(mode === "learn" && selWord && selWord.letter && selLetter !== selWord.letter){
+    selLetter = selWord.letter;
+  }
   renderAlphabet();
   renderWordlist();
   if(mode === "learn") renderLearn();
