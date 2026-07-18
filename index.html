@@ -194,6 +194,16 @@
       margin-right:auto;
       justify-content:center;
     }
+    .modebar.nolist #modeToggle{
+      width:100%;
+      grid-template-columns:repeat(5,1fr);
+    }
+    .modebar.nolist #modeToggle::after{
+      width:auto;
+    }
+    .modebar.nolist #modeToggle button{
+      justify-content:center;
+    }
     .alphabet-toggle{
       width:var(--learn-content);
       margin-left:var(--learn-content-left);
@@ -1443,7 +1453,7 @@ function renderExercises(){
 
   const title = document.createElement("div");
   title.className = "question";
-  title.textContent = "🪞 " + disp("вежбе за родитеље");
+  title.textContent = "🪞 " + disp("вежбе за децу");
   s.appendChild(title);
 
   const intro = document.createElement("div");
