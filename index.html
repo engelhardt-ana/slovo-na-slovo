@@ -129,7 +129,16 @@
     .alphabet-toggle{display:flex}
     .words-toggle{display:flex}
     .alphabet.collapsed{display:none}
-    .alphabet{width:100%;grid-template-columns:repeat(auto-fit,minmax(46px,1fr));max-height:18vh;overflow:auto;padding-bottom:8px}
+    .alphabet{
+      width:100%;
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding:2px 10px 8px;
+      max-height:none;
+    }
+    .alphabet .abc{flex:0 0 54px;height:54px;aspect-ratio:auto}
   }
 
   /* ---------- main layout ---------- */
@@ -152,17 +161,17 @@
   @media (max-width:720px){
     .wordlist{
       max-height:none;
-      padding:9px;
+      padding:7px;
       overflow-x:auto;
       overflow-y:hidden;
       flex-direction:row;
       align-items:stretch;
-      gap:12px;
+      gap:10px;
       scroll-snap-type:x proximity;
     }
     .wordlist.collapsed{display:none}
     .wordlist h2{
-      flex:0 0 118px;
+      flex:0 0 106px;
       align-self:center;
       line-height:1.25;
       padding-right:10px;
@@ -171,8 +180,8 @@
     .resetbtn{flex:0 0 auto;align-self:center;padding:8px 11px;font-size:13px}
     .chip{
       flex:0 0 clamp(132px,42vw,170px);
-      min-height:54px;
-      padding:8px 10px;
+      min-height:48px;
+      padding:7px 10px;
       font-size:15px;
       border-radius:11px;
       scroll-snap-align:start;
