@@ -453,7 +453,7 @@ function markDone(word, letter, notify = false){
   const wasNew = !done.has(word);
   done.add(word);
   saveSet(STORAGE.done, done);
-  if(wasNew && notify) checkCelebrations(letter);
+  if(notify) checkCelebrations(letter);
 }
 function checkCelebrations(letter){
   if(letter && isLetterDone(letter) && !celebratedLetters.has(letter)){
@@ -482,7 +482,7 @@ function showCelebration(title, text, completedAll){
   $("celebrationText").textContent = text;
   $("celebrationClose").textContent = disp("настави");
   $("celebrationReset").textContent = disp("почни поново");
-  $("celebrationReset").style.display = completedAll ? "" : "none";
+  $("celebrationReset").style.display = "";
   $("celebration").classList.add("show");
 }
 function hideCelebration(){
@@ -497,6 +497,14 @@ function resetProgress(){
   localStorage.removeItem(STORAGE.all);
   hideCelebration();
   renderAll();
+}
+function addResetButton(parent){
+  if(!done.size) return;
+  const reset = document.createElement("button");
+  reset.className = "resetbtn";
+  reset.textContent = disp("почни поново");
+  reset.onclick = resetProgress;
+  parent.appendChild(reset);
 }
 
 /* ================= render: alphabet ================= */
@@ -531,13 +539,7 @@ function renderWordlist(){
     ? disp("речи на слово") + " " + dispLetter(selLetter) + ` (${entries.length})`
     : disp("речи");
   wrap.appendChild(h);
-  if(done.size){
-    const reset = document.createElement("button");
-    reset.className = "resetbtn";
-    reset.textContent = disp("почни поново");
-    reset.onclick = resetProgress;
-    wrap.appendChild(reset);
-  }
+  addResetButton(wrap);
 
   if(!selLetter){
     const p = document.createElement("div");
@@ -571,11 +573,15 @@ function renderWordlist(){
 function renderLearn(){
   const s = $("stage");
   s.innerHTML = "";
+  addResetButton(s);
   if(!selWord){
-    s.innerHTML = `<div class="placeholder">
+    const p = document.createElement("div");
+    p.className = "placeholder";
+    p.innerHTML = `
       <div class="arrow">🧸</div>
       <div>${disp("изабери слово и кренемо!")}</div>
-    </div>`;
+    `;
+    s.appendChild(p);
     return;
   }
   const { syl, w, e } = selWord;
@@ -1002,6 +1008,7 @@ function renderAll(){
   else if(mode === "sound") renderSound();
   else if(mode === "blend") renderBlend();
   else renderExercises();
+  if(mode === "learn") checkCelebrations(selLetter);
 }
 syncToggles();
 renderAll();
