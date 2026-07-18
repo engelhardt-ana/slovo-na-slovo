@@ -153,6 +153,17 @@
     min-height:0;
   }
   main.nolist{grid-template-columns:1fr}
+  @media (min-width:721px){
+    main.nolist{
+      width:min(920px,calc(100% - 32px));
+      margin:0 auto;
+      padding-left:0;
+      padding-right:0;
+    }
+    main.nolist .stage{
+      min-height:280px;
+    }
+  }
   @media (max-width:720px){ main{grid-template-columns:1fr;gap:10px;padding:0 12px 12px} }
 
   /* word list */
